@@ -1,15 +1,9 @@
-package myLearning;
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
+package nio;
 import java.io.ByteArrayOutputStream;
-import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
 
 /**
  * Created with .

@@ -1,4 +1,4 @@
-package myLearning;
+package nio;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
