@@ -1,4 +1,4 @@
-package Chapter2.Item3.
+package Chapter2.Item3.enumT;
 
 // Enum singleton - the preferred approach - page 18
 public enum Elvis {

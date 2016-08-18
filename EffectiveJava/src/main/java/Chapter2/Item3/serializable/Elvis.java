@@ -1,7 +1,9 @@
 package Chapter2.Item3.serializable;
 
+import java.io.Serializable;
+
 // Serializable singleton with public final field - Page 18
-public class Elvis {
+public class Elvis implements Serializable{
     public static final Elvis INSTANCE = new Elvis();
     private Elvis() { }
 

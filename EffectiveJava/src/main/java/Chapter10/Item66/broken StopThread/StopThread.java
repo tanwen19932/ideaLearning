@@ -1,4 +1,4 @@
-package Chapter10.Item66.broken// Broken! - How long would you expect this program to run? - Page 259
+package Chapter10.Item66.broken;// Broken! - How long would you expect this program to run? - Page 259
 
 import java.util.concurrent.*;
 

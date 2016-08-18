@@ -1,4 +1,4 @@
-package Chapter2.Item5.fast// Doesn't creates unnecessary duplicate objects - page 21
+package Chapter2.Item5.fast;// Doesn't creates unnecessary duplicate objects - page 21
 
 import java.util.*;
 

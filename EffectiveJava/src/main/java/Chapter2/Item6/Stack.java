@@ -19,6 +19,7 @@ public class Stack {
     public Object pop() {
         if (size == 0)
             throw new EmptyStackException();
+        //elements[size] = null;
         return elements[--size];
     }
 

@@ -1,4 +1,4 @@
-package Chapter2.Item2.telescoping// Telescoping constructor pattern - does not scale well! - Pages 11-12
+package Chapter2.Item2.telescoping_constructor;
 
 public class NutritionFacts {
     private final int servingSize;   // (mL)            required
