@@ -1,16 +1,15 @@
 package rmi.rmiClient2;
-import java.rmi.registry.LocateRegistry;  
-import java.util.HashMap;  
-  
-import javax.management.MBeanServer;  
-import javax.management.MBeanServerFactory;  
-import javax.management.ObjectInstance;  
-import javax.management.ObjectName;  
-import javax.management.remote.JMXAuthenticator;  
-import javax.management.remote.JMXConnectorServer;  
-import javax.management.remote.JMXConnectorServerFactory;  
-import javax.management.remote.JMXServiceURL;  
-import javax.security.auth.Subject;  
+import javax.management.MBeanServer;
+import javax.management.MBeanServerFactory;
+import javax.management.ObjectInstance;
+import javax.management.ObjectName;
+import javax.management.remote.JMXAuthenticator;
+import javax.management.remote.JMXConnectorServer;
+import javax.management.remote.JMXConnectorServerFactory;
+import javax.management.remote.JMXServiceURL;
+import javax.security.auth.Subject;
+import java.rmi.registry.LocateRegistry;
+import java.util.HashMap;
   
 public class JMXAgent {  
     /** 
@@ -32,7 +31,7 @@ public class JMXAgent {
                     }  
                 }  
                 throw new SecurityException("not authicated");  
-            }  
+            }
         });  
         JMXConnectorServer cserver = JMXConnectorServerFactory  
                 .newJMXConnectorServer(new JMXServiceURL(  

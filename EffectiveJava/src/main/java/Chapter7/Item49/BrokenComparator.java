@@ -6,11 +6,12 @@ public class BrokenComparator {
     public static void main(String[] args) {
 
         // Broken comparator - can you spot the flaw? - Page 221
-        Comparator<Integer> naturalOrder = new Comparator<Integer>() {
-            public int compare(Integer first, Integer second) {
-                return first < second ? -1 : (first == second ? 0 : 1);
-            }
-        };
+        Comparator<Integer> naturalOrder = (first,  second)->first < second ? -1 : (first == second ? 0 : 1);
+        //Comparator<Integer> naturalOrder = new Comparator<Integer>() {
+        //    public int compare(Integer first, Integer second) {
+        //        return first < second ? -1 : (first == second ? 0 : 1);
+        //    }
+        //};
 
 
         // Fixed Comparator - Page 222
