@@ -1,22 +1,17 @@
 package news.mediaSrc.util;
 
-import static tw.utils.StringUtil.isNull;
-
-import java.net.URL;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
-
 import news.DicMap;
 import news.News;
 import tw.utils.HtmlUtil;
 import tw.utils.PropertiesUtil;
 import tw.utils.StringUtil;
+
+import java.sql.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+
+import static tw.utils.StringUtil.isNull;
 
 public class MediaSrcUtil {
 
@@ -93,16 +88,7 @@ public class MediaSrcUtil {
                     mediaSrc.setLanguageCode(mediaSrcRs.getString("languageCode"));
                     mediaSrc.setLanguageTname(mediaSrcRs.getString("languageTname"));
                     mediaSrc.setMediaLevel(mediaSrcRs.getString("mediaLevel"));
-                    if (mediaSrc.mediaNameZh == null || mediaSrc.mediaNameZh.toLowerCase().equals("null")) {
-                        if (mediaSrc.mediaNameSrc != null && !mediaSrc.mediaNameSrc.toLowerCase().equals("null")) {
-                            mediaSrc.setMediaNameZh(mediaSrc.mediaNameSrc);
-                        } else if (mediaSrc.mediaNameEn == null || mediaSrc.mediaNameEn.toLowerCase().equals("null")) {
-                            mediaSrc.setMediaNameZh(mediaSrc.mediaNameEn);
-                            mediaSrc.setMediaNameSrc(mediaSrc.mediaNameEn);
-                        } else {
-                            continue;
-                        }
-                    }
+                    if (!fixMediaName(mediaSrc)) continue;
                     if (mediaSrc.mediaNameSrc == null || mediaSrc.mediaNameSrc.toLowerCase().equals("null")) {
                         mediaSrc.setMediaNameSrc(mediaSrc.mediaNameZh);
                     }
@@ -127,18 +113,43 @@ public class MediaSrcUtil {
             } finally {
                 if (mediaSrcRs != null) {
                     mediaSrcRs.close();
-                    mediaSrcRs = null;
                 }
                 if (preparedStatement2 != null) {
                     preparedStatement2.close();
-                    preparedStatement2 = null;
                 }
                 if (mysqlCon != null) {
                     mysqlCon.close();
-                    mysqlCon = null;
                 }
             }
         }
+    }
+
+    public static boolean fixMediaName(MediaSrc mediaSrc) {
+        if (mediaSrc.mediaNameZh == null || mediaSrc.mediaNameZh.toLowerCase().equals("null")) {
+            if (mediaSrc.mediaNameSrc != null && !mediaSrc.mediaNameSrc.toLowerCase().equals("null")) {
+                mediaSrc.setMediaNameZh(mediaSrc.mediaNameSrc);
+            } else if (mediaSrc.mediaNameEn == null || mediaSrc.mediaNameEn.toLowerCase().equals("null")) {
+                mediaSrc.setMediaNameZh(mediaSrc.mediaNameEn);
+                mediaSrc.setMediaNameSrc(mediaSrc.mediaNameEn);
+            } else {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static boolean fixNewsMediaName(News news) {
+        if (news.getMediaNameZh() == null || news.getMediaNameZh().toLowerCase().equals("null")) {
+            if (news.getMediaNameSrc() != null && !news.getMediaNameSrc().toLowerCase().equals("null")) {
+                news.setMediaNameZh(news.getMediaNameSrc());
+            } else if (news.getMediaNameEn() == null || news.getMediaNameEn().toLowerCase().equals("null")) {
+                news.setMediaNameZh(news.getMediaNameEn());
+                news.setMediaNameSrc(news.getMediaNameEn());
+            } else {
+                return false;
+            }
+        }
+        return true;
     }
 
     public static boolean fixMediaSrcCountry(MediaSrc mediaSrc) {

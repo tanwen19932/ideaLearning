@@ -53,13 +53,15 @@ public class NewsInsertServiceImpl implements InserterService {
     }
 
 
-    public String insert(String newsJsonStr){
-        return insert( newsJsonStr , false);
+    public String insert(String newsJsonStr) {
+        return insert(newsJsonStr, false);
     }
-    public String insertTest(String newsJsonStr){
-        return insert( newsJsonStr , true);
+
+    public String insertTest(String newsJsonStr) {
+        return insert(newsJsonStr, true);
     }
-    public String insert( String newsJsonStr , boolean isTest) {
+
+    public String insert(String newsJsonStr, boolean isTest) {
         Future<String> result = threadPool.submit(new Callable<String>() {
             @Override
             public String call() throws Exception {
@@ -71,12 +73,12 @@ public class NewsInsertServiceImpl implements InserterService {
                     JSONArray newsArray = new JSONArray(newsJsonStr);
                     for (Object jo : newsArray) {
                         JSONObject newsJO = (JSONObject) jo;
-                        add(countMap, insert(newsJO , isTest));
+                        add(countMap, insert(newsJO, isTest));
                     }
                 } catch (JSONException e) {
                     try {
                         JSONObject newsJO = new JSONObject(newsJsonStr);
-                        add(countMap, insert(newsJO , isTest));
+                        add(countMap, insert(newsJO, isTest));
                     } catch (Exception e2) {
                         LOG.debug(e2.getMessage());
                         add(countMap, ERROR.WrongFormat);
@@ -98,7 +100,7 @@ public class NewsInsertServiceImpl implements InserterService {
         }
     }
 
-    private ERROR insert(JSONObject newsJO , boolean isTest) {
+    private ERROR insert(JSONObject newsJO, boolean isTest) {
         News news = new News();
         String isTestStr = "是否测试 " + isTest;
         Field[] fields = news.getClass().getDeclaredFields();
@@ -121,9 +123,9 @@ public class NewsInsertServiceImpl implements InserterService {
         if (isAllNull(news.getMediaNameSrc(), news.getMediaNameZh(), news.getMediaNameEn())) {
             return ERROR.MediaNameWrong;
         }
-        if(isTest){
+        if (isTest) {
             newsDaoTest.Insert(news);
-        }else{
+        } else {
             newsDao.Insert(news);
         }
         LOG.info(isTestStr + " 处理成功 title :" + newsJO.getString(NewsMap.TITLE_SRC) + "--- URL: " + newsJO.getString(NewsMap.URL));
@@ -132,7 +134,11 @@ public class NewsInsertServiceImpl implements InserterService {
 
 
     private void fixNews(News news) {
-        MediaSrcUtil.fixNews(news);
+        if (isAllNull(news.getMediaNameSrc(), news.getMediaNameZh(), news.getMediaNameEn())) {
+            MediaSrcUtil.fixNews(news);
+        } else {
+            MediaSrcUtil.fixNewsMediaName(news);
+        }
         if (news.getMediaTname() != null) {
             news.setMediaType(DicMap.getMediaType(news.getMediaTname()));
         } else {
