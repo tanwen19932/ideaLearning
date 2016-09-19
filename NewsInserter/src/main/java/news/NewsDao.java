@@ -1,43 +1,21 @@
 package news;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
-
+import hbase.util.HbaseUtil;
+import hbase.util.RowkeyUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.hadoop.hbase.client.Get;
-import org.apache.hadoop.hbase.client.HTable;
-import org.apache.hadoop.hbase.client.Put;
-import org.apache.hadoop.hbase.client.Result;
-import org.apache.hadoop.hbase.client.ResultScanner;
-import org.apache.hadoop.hbase.client.Scan;
+import org.apache.hadoop.hbase.client.*;
+import org.apache.hadoop.hbase.filter.CompareFilter.CompareOp;
 import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.hadoop.hbase.filter.FilterList;
 import org.apache.hadoop.hbase.filter.SingleColumnValueFilter;
-import org.apache.hadoop.hbase.filter.CompareFilter.CompareOp;
 import org.apache.hadoop.hbase.util.Bytes;
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import java.io.*;
+import java.util.*;
 
-import tw.utils.HbaseUtil;
-import tw.utils.RowkeyUtil;
-
-public  class NewsDao implements  INewsDao{
+public class NewsDao
+        implements INewsDao {
     protected static Log LOG = LogFactory.getLog(NewsDao.class);
     static String table_log_name = "NewsArticleBER";
     protected static final int tableN = 20;
@@ -76,7 +54,8 @@ public  class NewsDao implements  INewsDao{
             th.start();
         }
     }
-    public NewsDao(){
+
+    public NewsDao() {
         this(table_log_name);
     }
 
@@ -125,11 +104,11 @@ public  class NewsDao implements  INewsDao{
             byte[] rowkey;
             if (news.getId() == null) {
                 String a = RowkeyUtil.rowkey(news.getTitleSrc());
+                news.setId(a);
                 rowkey = Bytes.toBytes(a);
             } else {
                 rowkey = Bytes.toBytes(news.getId());
             }
-
             // 澧炲姞涓�鏉¤褰�
             Put put = new Put(rowkey);
 
@@ -195,7 +174,8 @@ public  class NewsDao implements  INewsDao{
         return null;
     }
 
-    class AClass implements Runnable {
+    class AClass
+            implements Runnable {
 
         List<String> rowkeyList;
 
@@ -341,8 +321,8 @@ public  class NewsDao implements  INewsDao{
     }
 
 
-
-    public void saveFile(Map<String, Integer> sourceCount, File file) throws IOException {
+    public void saveFile(Map<String, Integer> sourceCount, File file)
+            throws IOException {
         BufferedWriter bf = new BufferedWriter(new FileWriter(file));
         StringBuffer sb2 = new StringBuffer();
         for (Map.Entry<String, Integer> entry : sourceCount.entrySet()) {
@@ -474,7 +454,8 @@ public  class NewsDao implements  INewsDao{
         }
     }
 
-    public void delRows(Date beginDate, Date endDate) throws Exception {
+    public void delRows(Date beginDate, Date endDate)
+            throws Exception {
         List<String> rowkeyList = new LinkedList<>();
         try {
             long beginMills = System.currentTimeMillis();
@@ -511,7 +492,8 @@ public  class NewsDao implements  INewsDao{
         HbaseUtil.delRows("NewsArticleBE2", rowkeyList);
     }
 
-    public static Map<String, String> getDicMap(String filePath) throws IOException {
+    public static Map<String, String> getDicMap(String filePath)
+            throws IOException {
 
         Map<String, String> map = new HashMap<String, String>();
         File file = new File(filePath);
@@ -533,7 +515,8 @@ public  class NewsDao implements  INewsDao{
         return map;
     }
 
-    public static void main(String[] agrs) throws Exception {
+    public static void main(String[] agrs)
+            throws Exception {
 
         // 输入日期的方式：
         // NewsDao newsDao= new NewsDao();

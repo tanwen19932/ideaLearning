@@ -58,7 +58,8 @@ public class MediaSrcUtil {
         }
     }
 
-    private synchronized static void getMediaMap() throws SQLException, ClassNotFoundException {
+    private synchronized static void getMediaMap()
+            throws SQLException, ClassNotFoundException {
         if (mediaSrcMap == null) {
             mediaSrcMap = new HashMap<>();
             Class.forName(properties.getProperty("JDBC_DRIVER"));

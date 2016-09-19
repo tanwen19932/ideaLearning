@@ -1,16 +1,7 @@
 package com.services.controller;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.URLDecoder;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-
 import com.services.service.impl.NewsInsertServiceImpl;
+import com.services.service.impl.PlatFormServiceImpl;
 import edu.buaa.nlp.socialHttp.SocialDao;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -19,8 +10,15 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import tw.utils.FileUtil;
 
-import com.services.service.impl.PlatFormServiceImpl;
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 
 @Controller
 @RequestMapping("/webservice")
@@ -34,12 +32,17 @@ public class YqAppServiceController {
         log.info("_" + method + ",耗时" + (e - s) + "毫秒\n参数：" + param.substring(0, param.length() > 100 ? 100 : param.length()));
     }
 
-    @RequestMapping(value = "/insertNewsTest/{key}", method = RequestMethod.POST)
+    @RequestMapping(value = "/insertNewsTest/{key}")
     public void insertNewsTest(@PathVariable String key, HttpServletRequest request, HttpServletResponse response) {
-        JSONObject object = getJsonResult(key,request, new IResulter() {
+        JSONObject object = getJsonResult(key, request, new IResulter() {
             @Override
-            public String handle(String params) {
-                return NewsInsertServiceImpl.getInstance().insertTest(params);
+            public String handle(String params){
+                try {
+                    FileUtil.fileAppendStr("insertNewsTest",params);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                return new JSONObject().toString();
             }
         });
         doWriteDate(object, request, response);
@@ -57,11 +60,10 @@ public class YqAppServiceController {
     }
 
 
-
     @RequestMapping(value = "/insertSocialForPost/{key}", method = RequestMethod.POST)
     public void insertSocialForPost(@PathVariable String key, HttpServletRequest request, HttpServletResponse response) {
         // false : true;
-        JSONObject object = getJsonResult(key ,request, new IResulter() {
+        JSONObject object = getJsonResult(key, request, new IResulter() {
             @Override
             public String handle(String params) {
                 return String.valueOf(SocialDao.Insert(params));
@@ -70,36 +72,38 @@ public class YqAppServiceController {
         doWriteDate(object, request, response);
     }
 
-    private JSONObject getJsonResult( String key,HttpServletRequest request , IResulter resulter){
+    private JSONObject getJsonResult(String key, HttpServletRequest request, IResulter resulter) {
         JSONObject object = null;
         if (!PassAuthentication(key)) {
-            object = new JSONObject("{'returncode':'9','returnmsg':'没有权限'}");
+            object = new JSONObject("{'returncode':'9','returnmsg':'the key has no access'}");
         } else {
             long s = System.currentTimeMillis();
             String param = "";
             try {
-                BufferedReader bf = new BufferedReader(new InputStreamReader(request.getInputStream()));
+                BufferedReader bf = new BufferedReader(new InputStreamReader(request.getInputStream(), "utf8"));
                 String line;
                 while ((line = bf.readLine()) != null) {
                     param += line;
                 }
+                //param = URLDecoder.decode(param, "UTF-8");
+
                 String result = resulter.handle(param);
                 log.info(result);
-                param = URLDecoder.decode(param, "UTF-8");
                 object = new JSONObject();
                 object.put("returncode", "1");
-                object.put("returnmsg", "正常");
+                object.put("returnmsg", "requestSuccess");
+                //object.put("returndata", "yes");
                 object.put("returndata", new JSONObject(result));
-//				System.out.println("输出结果：" + obj.toString());
+                //				System.out.println("输出结果：" + obj.toString());
             } catch (Exception e) {
                 e.printStackTrace();
                 object = new JSONObject();
                 object.put("returncode", "0");
-                object.put("returnmsg", "失败：" + e.getMessage());
+                object.put("returnmsg", "requestWrong：" + e.getMessage());
                 object.put("returndata", new String[]{});
             }
             long e = System.currentTimeMillis();
-            writeLog(s, e, "insertNewsForPost", param);
+            writeLog(s, e, resulter.getClass().getSimpleName(), param);
         }
         return object;
     }
@@ -125,6 +129,7 @@ public class YqAppServiceController {
             e.printStackTrace();
         }
     }
+
     /**
      * @Title: PassAuthentication @Description: 认证 @param @param
      * authenticationcode @param @return 设定文件 @return boolean 返回类型 @throws

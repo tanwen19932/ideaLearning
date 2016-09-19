@@ -1,24 +1,19 @@
 package com.services.service.impl;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
-
-
+import com.services.service.PlatFormServiceI;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.services.service.PlatFormServiceI;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.List;
 
 /**
  * @author wuxu
@@ -28,7 +23,8 @@ import com.services.service.PlatFormServiceI;
  */
 @Component("platFormService")
 @Scope("singleton")
-public class PlatFormServiceImpl implements PlatFormServiceI {
+public class PlatFormServiceImpl
+        implements PlatFormServiceI {
     protected static Logger log = LoggerFactory.getLogger(PlatFormServiceImpl.class);
 
     public static XMLGregorianCalendar convertToXMLGregorianCalendar(Date date) {
@@ -44,7 +40,8 @@ public class PlatFormServiceImpl implements PlatFormServiceI {
         return gc;
     }
 
-    public JSONObject insertNewsForPost(String param) throws Exception {
+    public JSONObject insertNewsForPost(String param)
+            throws Exception {
         String result = NewsInsertServiceImpl.getInstance().insert(param);
         return new JSONObject(result);
     }

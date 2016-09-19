@@ -93,6 +93,12 @@
             <groupId>jx</groupId>
             <artifactId>zyyt</artifactId>
             <version>0.0.1-SNAPSHOT</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>myLearning</artifactId>
+                    <groupId>edu.buaa.nlp.tw</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -118,6 +124,7 @@
             <artifactId>json</artifactId>
             <version>20160212</version>
         </dependency>
+
 
         <dependency>
             <groupId>mysql</groupId>
@@ -151,16 +158,5 @@
             <url>http://123.56.188.120:8100/nexus/content/repositories/snapshots</url>
         </snapshotRepository>
     </distributionManagement>
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
-                <version>2.1.1</version>
-                <configuration>
-                    <webXml>web/WEB-INF/web.xml</webXml>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
+
 </project>

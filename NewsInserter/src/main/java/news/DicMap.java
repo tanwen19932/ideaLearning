@@ -53,7 +53,6 @@ public class DicMap {
     public static String getCountryZh(String lanEn) {
         try {
             String lanZh = country.getProperty(lanEn).replaceAll("[\\w]", "");
-
             return lanZh;
         } catch (Exception e) {
             String regex = "[,|，|\\.]";
@@ -87,6 +86,7 @@ public class DicMap {
     public static String getLanguageEn(String lanZh) {
         try {
             String lanEn = (String) language.get(lanZh);
+            return lanEn;
         } catch (Exception e) {
             String regex = "[,|，|\\.]";
             Pattern pattern = Pattern.compile(regex);
@@ -137,6 +137,7 @@ public class DicMap {
         return 999;
     }
 
+
     public static String getMediaTName(String mediaTNum) {
         return mediaTMap.get(Integer.parseInt(mediaTNum));
     }
@@ -145,9 +146,4 @@ public class DicMap {
         return mediaTMap.get(mediaTNum);
     }
 
-    public static void main(String[] args) {
-        // System.out.println(DicMap.getLanguageZh("en"));
-        // System.out.println(DicMap.getLanguageZh("en"));
-        System.out.println(DicMap.getCountryZh("Iran, Islamic Republic of"));
-    }
 }

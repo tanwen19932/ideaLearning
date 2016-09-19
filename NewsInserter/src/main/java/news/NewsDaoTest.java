@@ -1,6 +1,8 @@
 package news;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import hbase.util.HbaseUtil;
+import hbase.util.RowkeyUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.hbase.client.*;
@@ -9,8 +11,6 @@ import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.hadoop.hbase.filter.FilterList;
 import org.apache.hadoop.hbase.filter.SingleColumnValueFilter;
 import org.apache.hadoop.hbase.util.Bytes;
-import tw.utils.HbaseUtil;
-import tw.utils.RowkeyUtil;
 
 import java.io.*;
 import java.text.SimpleDateFormat;
@@ -20,7 +20,8 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 
 @SuppressWarnings("deprecation")
-public class NewsDaoTest implements  INewsDao{
+public class NewsDaoTest
+        implements INewsDao {
     protected static Log LOG = LogFactory.getLog(NewsDaoTest.class);
     static final String table_log_name = "NewsArticleTest";
     protected static final int tableN = 2;
@@ -292,7 +293,8 @@ public class NewsDaoTest implements  INewsDao{
         return null;
     }
 
-    class AClass implements Runnable {
+    class AClass
+            implements Runnable {
 
         List<String> rowkeyList;
 
@@ -621,7 +623,8 @@ public class NewsDaoTest implements  INewsDao{
         // }
     }
 
-    public void saveFile(Map<String, Integer> sourceCount, File file) throws IOException {
+    public void saveFile(Map<String, Integer> sourceCount, File file)
+            throws IOException {
         BufferedWriter bf = new BufferedWriter(new FileWriter(file));
         StringBuffer sb2 = new StringBuffer();
         for (Map.Entry<String, Integer> entry : sourceCount.entrySet()) {
@@ -753,7 +756,8 @@ public class NewsDaoTest implements  INewsDao{
         }
     }
 
-    public void delRows(Date beginDate, Date endDate) throws Exception {
+    public void delRows(Date beginDate, Date endDate)
+            throws Exception {
         List<String> rowkeyList = new LinkedList<>();
         try {
             long beginMills = System.currentTimeMillis();
@@ -790,7 +794,8 @@ public class NewsDaoTest implements  INewsDao{
         HbaseUtil.delRows("NewsArticleBE2", rowkeyList);
     }
 
-    public static Map<String, String> getDicMap(String filePath) throws IOException {
+    public static Map<String, String> getDicMap(String filePath)
+            throws IOException {
 
         Map<String, String> map = new HashMap<String, String>();
         File file = new File(filePath);
@@ -812,7 +817,8 @@ public class NewsDaoTest implements  INewsDao{
         return map;
     }
 
-    public static void main(String[] agrs) throws Exception {
+    public static void main(String[] agrs)
+            throws Exception {
 
         // 输入日期的方式：
         // NewsDao newsDao= new NewsDao();
