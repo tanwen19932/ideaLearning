@@ -1,50 +1,6 @@
 package edu.buaa.nlp.es.news;
 
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-
-import org.apache.log4j.Logger;
-import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
-import org.elasticsearch.action.bulk.BulkRequestBuilder;
-import org.elasticsearch.action.bulk.BulkResponse;
-import org.elasticsearch.action.search.SearchRequestBuilder;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.search.SearchType;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.cluster.health.ClusterHealthStatus;
-import org.elasticsearch.common.unit.TimeValue;
-import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.elasticsearch.common.xcontent.XContentFactory;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.FilteredQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.query.functionscore.ScoreFunctionBuilders;
-import org.elasticsearch.script.Script;
-import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.SearchHits;
-import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
-import org.elasticsearch.search.aggregations.AggregationBuilders;
-import org.elasticsearch.search.highlight.HighlightField;
-import org.elasticsearch.search.sort.SortBuilder;
-import org.elasticsearch.search.sort.SortBuilders;
-import org.elasticsearch.search.sort.SortOrder;
-
 import edu.buaa.nlp.es.client.ESClient;
 import edu.buaa.nlp.es.client.IndexBuilder;
 import edu.buaa.nlp.es.constant.Configuration;
@@ -54,6 +10,37 @@ import edu.buaa.nlp.es.util.CharUtil;
 import edu.buaa.nlp.es.util.Constant;
 import edu.buaa.nlp.es.util.DateUtil;
 import edu.buaa.nlp.es.util.PingyinTool;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+import org.apache.log4j.Logger;
+import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
+import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.search.SearchType;
+import org.elasticsearch.client.Client;
+import org.elasticsearch.cluster.health.ClusterHealthStatus;
+import org.elasticsearch.common.unit.TimeValue;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.FilteredQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.functionscore.ScoreFunctionBuilders;
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.highlight.HighlightField;
+import org.elasticsearch.search.sort.SortBuilder;
+import org.elasticsearch.search.sort.SortBuilders;
+import org.elasticsearch.search.sort.SortOrder;
+
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+import java.net.UnknownHostException;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class SearchBuilder {
 
@@ -365,8 +352,8 @@ public class SearchBuilder {
 	
 	
 	public SearchRequestBuilder buildQuery(JSONObject obj){
-		
-		String key=obj.getString(Mapper.Query.KEYWORD);
+        Object keyObj  = obj.get(Mapper.Query.KEYWORD);
+		String key= keyObj.toString();
 		
 		//for sensitive
 		if(handledSensitiveWords == false)
@@ -607,12 +594,14 @@ public class SearchBuilder {
 		//*/
 //		qb.must(initQb);
 		FilteredQueryBuilder fqb=QueryBuilders.filteredQuery(fsqb, filterQuery(obj));
+		System.out.println(fqb.toString());
 		SearchRequestBuilder srb=client.prepareSearch("news201501","news201502","news201503","news201504","news201505","news201506",
 													  "news201507","news201508","news201509","news201510","news201511","news201512",
 													  "news201601","news201602","news201603","news201604","news201605","news201606",
 													  "news201607","news201508","news201609","news201610","news201611","news201612"
 													  );//Configuration.INDEX_NAME);	//
 		srb.setQuery(fqb);
+		System.out.println(fqb.toString());
 		String type=obj.getString(Mapper.Query.INDEX_TYPE);
 		if(type!=null && Constant.QUERY_INDEX_TYPE_ALL.equals(type)){
 			srb.setTypes(Configuration.INDEX_TYPE_ARTICLE);
@@ -981,7 +970,7 @@ public class SearchBuilder {
 		for(String key : hashYinhao.keySet())
 		{
 			keyword = keyword.replace("\"" + key + "\"", hashYinhao.get(key));
-			keyword = keyword.replace(key, hashYinhao.get(key));
+			keyword = keyword.replace(key+"(?=^\\d)", hashYinhao.get(key));
 		}
 		return keyword;
 	}
