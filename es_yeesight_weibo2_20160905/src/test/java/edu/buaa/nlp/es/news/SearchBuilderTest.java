@@ -1,6 +1,7 @@
 package edu.buaa.nlp.es.news;
 
 import edu.buaa.nlp.es.client.ESClient;
+import edu.buaa.nlp.es.news.SearchBuilder;
 import junit.framework.TestCase;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.search.SearchResponse;
@@ -20,7 +21,10 @@ public class SearchBuilderTest
 
     public void testBuildQuery()
             throws Exception {
-        String json = "{\"keyword\":\"(\\\"US navy\\\" and (\\\"technology\\\" or \\\"new\\\" or \\\"launch\\\" or \\\"order\\\" or \\\"finance\\\" or \\\"equipment\\\" or \\\"carrier\\\" or \\\"win\\\" or \\\"contract\\\" or \\\"invest\\\" or \\\"adopt\\\" or \\\"design\\\")) or \\\"littoral combatship\\\"\",\"order\":\"desc\",\"fieldName\":\"_score\",\"highlight\":false,\"resultType\":\"front\",\"pageNo\":\"1\",\"pageSize\":\"10\",\"similarityId\":\"\",\"isSensitive\":[0]}";
+        //String json = "{\"keyword\":\"(\\\"US navy\\\" and (\\\"technology\\\" or \\\"new\\\" or \\\"launch\\\" or \\\"order\\\" or \\\"finance\\\" or \\\"equipment\\\" or \\\"carrier\\\" or \\\"win\\\" or \\\"contract\\\" or \\\"invest\\\" or \\\"adopt\\\" or \\\"design\\\")) or \\\"littoral combatship\\\"\",\"order\":\"desc\",\"fieldName\":\"_score\",\"highlight\":false,\"resultType\":\"front\",\"pageNo\":\"1\",\"pageSize\":\"10\",\"similarityId\":\"\",\"isSensitive\":[0]}";
+
+
+        String json = "{\"keyword\":\"抗生素\"}";
         SearchBuilder searchBuilder = new SearchBuilder();
         searchBuilder.crossSearch(json);
         String a = "";
