@@ -1,14 +1,17 @@
 package edu.buaa.nlp.es.product;
 
-import edu.buaa.nlp.es.client.ESClient;
-import edu.buaa.nlp.es.client.IndexBuilder;
-import edu.buaa.nlp.es.constant.Configuration;
-import edu.buaa.nlp.es.exception.ExceptionUtil;
-import edu.buaa.nlp.es.exception.QueryFormatException;
-import edu.buaa.nlp.es.util.Constant;
-import edu.buaa.nlp.es.util.DateUtil;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+
 import org.apache.log4j.Logger;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -23,15 +26,21 @@ import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.highlight.HighlightField;
 import org.elasticsearch.search.sort.SortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 
-import java.net.UnknownHostException;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import edu.buaa.nlp.es.client.ESClient;
+import edu.buaa.nlp.es.client.IndexBuilder;
+import edu.buaa.nlp.es.constant.Configuration;
+import edu.buaa.nlp.es.exception.ExceptionUtil;
+import edu.buaa.nlp.es.exception.QueryFormatException;
+
+import edu.buaa.nlp.es.util.Constant;
+import edu.buaa.nlp.es.util.DateUtil;
 
 @SuppressWarnings("deprecation")
 public class SearchBuilder {

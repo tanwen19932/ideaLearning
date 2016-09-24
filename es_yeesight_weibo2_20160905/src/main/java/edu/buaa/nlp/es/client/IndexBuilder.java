@@ -55,7 +55,7 @@ public class IndexBuilder {
 	/**
 	 * 索引单个新闻
 	 * @param jsonUnit 内容单元json串，key与IndexMapper.FieldXX中定义的保持一致
-	 * @param indexName 指定特定的index名称
+	 * @param indexName指定特定的index名称
 	 * @param type 指定索引中的类型
 	 * @param idKey 指定的id键名
 	 * @return

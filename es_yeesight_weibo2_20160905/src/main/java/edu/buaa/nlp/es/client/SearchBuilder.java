@@ -19,7 +19,7 @@ import java.util.List;
 
 
 /**
- * @author Administrator<br>
+ * @author Administrator
  * SearchBuilder的基类，后续其他类都继承自它
  */
 public class SearchBuilder {
@@ -183,6 +183,15 @@ public class SearchBuilder {
 			logger.error(ExceptionUtil.getExceptionTrace(e));
 			return false;
 		}
+	}
+	
+	
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+
 	}
 
 }

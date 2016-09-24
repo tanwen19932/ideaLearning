@@ -14,12 +14,12 @@ import edu.buaa.nlp.es.util.Constant;
 
 public class SearchTestProduct {
 	
-	public static void testAdvanced(){
+	public static void testAdvanced(String keyword){
 		SearchBuilder sb=new SearchBuilder();
 		JSONObject jsonQuery=new JSONObject();
 		jsonQuery.put(Mapper.Query.KEYWORD, "电子工业出版社");
 		
-		jsonQuery.put(Mapper.Query.KEYWORD, "手机 照相好");
+		jsonQuery.put(Mapper.Query.KEYWORD, keyword);
 		
 		jsonQuery.put(Mapper.Query.RESULT_TYPE, Constant.QUERY_RESULT_FRONT); //.QUERY_RESULT_ANALYSIS);
 		
@@ -43,16 +43,16 @@ public class SearchTestProduct {
 		//jsonQuery.put(Mapper.AdvancedQuery.FIELD_SENTIMENT, new int[]{1});//情感标识ID数组
 		//产品名
 		//jsonQuery.put(Mapper.AdvancedQuery.FIELD_PRODUCT_NAME, new String[]{ "三星 Galaxy S7 edge（G9350）32G版 铂光金移动联通电信4G手机 双卡双待 骁龙820手机"});//产品名
-		jsonQuery.put(Mapper.AdvancedQuery.FIELD_PRODUCT_NAME, new String[]{ "jd.com"});
+		//jsonQuery.put(Mapper.AdvancedQuery.FIELD_PRODUCT_NAME, new String[]{ "jd.com"});
 		//站点名
 		//jsonQuery.put(Mapper.AdvancedQuery.FIELD_WEBSITE, new String[]{ "jd.com"});//
 				
 		
 
 		long s1=System.currentTimeMillis();
-		//String result=sb.crossSearch(jsonQuery.toString());
+		String result=sb.crossSearch(jsonQuery.toString());
 		//String result=sb.crossSearchBySentiElement(jsonQuery.toString());
-		String result=sb.filterSearch(jsonQuery.toString());
+		//String result=sb.filterSearch(jsonQuery.toString());
 		long e1=System.currentTimeMillis();
 //		System.out.println("time:"+(e1-s1)/1000);
 		JSONArray array=JSONObject.fromObject(result).getJSONArray(Mapper.Query.RESULT_LIST);
@@ -204,7 +204,7 @@ public class SearchTestProduct {
 	
 	public static void main(String[] args) {
 		PropertyConfigurator.configure("log4j.properties");
-		testAdvanced();
+		testAdvanced("幻城");
 		//getUUID();
 		//getAllIndex();
 		

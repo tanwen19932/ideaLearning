@@ -155,8 +155,8 @@ public class Mapper {
 		public static final String FIELD_MEDIA_TYPE="mediaType";
 		public static final String FIELD_MEDIA_NAME_ZH="mediaNameZh";
 		public static final String FIELD_MEDIA_NAME_EN="mediaNameEn";
-		public static final String FIELD_MEDIA_NOT="mediaIdNot";
 
+		public static final String FIELD_MEDIA_NOT="mediaIdNot";
 		public static final String FIELD_ID="_id";
 		
 		public static final String FIELD_SIMILARITY_ID="similarityId";

@@ -49,8 +49,6 @@ public class SearchTestWeibo {
 		//jsonQuery.put(Mapper.AdvancedQuery.FIELD_SOURCEWEIBOID, new String[]{"271086590313415691710003464854591515456"});
 		//name
 		//jsonQuery.put(Mapper.AdvancedQuery.FIELD_NAME, new String[]{"T542c"});
-		
-		
 		long s1=System.currentTimeMillis();
 		String result=sb.crossSearch(jsonQuery.toString());
 //		String result=sb.filterSearch(jsonQuery.toString());
@@ -72,7 +70,7 @@ public class SearchTestWeibo {
 		SearchBuilder sb=new SearchBuilder();
 		JSONObject jsonQuery=new JSONObject();
 		jsonQuery.put(Mapper.Query.RESULT_TYPE, Constant.QUERY_RESULT_DETAIL); //.QUERY_RESULT_ANALYSIS);
-		jsonQuery.put(Mapper.AdvancedQuery.FIELD_ID, new String[]{"212100642214517465050003926971824554349","179681567014192991020003790877551608942"});
+		jsonQuery.put(Mapper.AdvancedQuery.FIELD_ID, new String[]{"279576381113910616290003672441005682265"});
 		String result = sb.filterSearch(jsonQuery.toString());
 		JSONArray array=JSONObject.fromObject(result).getJSONArray(Mapper.Query.RESULT_LIST);
 		System.out.println("result size:"+array.size());
@@ -96,7 +94,6 @@ public class SearchTestWeibo {
 				JSONObject objComment=arrayComment.getJSONObject(j);
 				System.out.println(objComment);
 			}
-			
 		}
 		sb.close();
 	}
@@ -104,7 +101,7 @@ public class SearchTestWeibo {
 	
 	public static void main(String[] args) {
 		PropertyConfigurator.configure("log4j.properties");
-		testAdvanced("(华夏幸福) and () and () and ()");
+		testAdvanced("(幸福) and () and () and ()");
 		//getUUID();
 	}
 }

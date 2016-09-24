@@ -1,13 +1,14 @@
 package edu.buaa.nlp.test;
 
-import edu.buaa.nlp.es.client.ESClient;
-import edu.buaa.nlp.es.constant.Configuration;
-import edu.buaa.wordsegment.PreProcessor;
-import org.elasticsearch.action.delete.DeleteResponse;
-
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.elasticsearch.action.delete.DeleteResponse;
+
+import edu.buaa.nlp.es.client.ESClient;
+import edu.buaa.nlp.es.constant.Configuration;
+import edu.buaa.wordsegment.PreProcessor;
 
 public class delData {
 
@@ -38,10 +39,10 @@ public class delData {
 		{
 			System.out.println("Please input: delData filename");
 		}
-
+		
 		List<String> lstIds = new ArrayList<String>();
 		System.out.println("输入文件名:" + args[1]);
-
+		
 		String content = PreProcessor.readFile(args[1]);
 		String[] ids = content.split("[\r\n]+");
 		for(String id : ids)
@@ -53,19 +54,19 @@ public class delData {
 			}
 		}
 		System.out.println(lstIds.size());
-
+		
 		for(String id : lstIds)
 		{
 			System.out.println(id);
 		    try {
 				DeleteResponse response = ESClient.getClient().prepareDelete(Configuration.INDEX_NAME,
-						Configuration.INDEX_TYPE_ARTICLE, id)
-				        .execute()
+						Configuration.INDEX_TYPE_ARTICLE, id)   
+				        .execute()   
 				        .actionGet();
 			} catch (UnknownHostException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			}
+			}  
 		    //System.out.println(response);
 		}
 		System.out.println("OK");

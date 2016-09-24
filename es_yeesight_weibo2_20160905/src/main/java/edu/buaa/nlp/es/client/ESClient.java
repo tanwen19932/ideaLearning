@@ -1,13 +1,14 @@
 package edu.buaa.nlp.es.client;
 
-import edu.buaa.nlp.es.constant.Configuration;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
+import edu.buaa.nlp.es.constant.Configuration;
 
 
 

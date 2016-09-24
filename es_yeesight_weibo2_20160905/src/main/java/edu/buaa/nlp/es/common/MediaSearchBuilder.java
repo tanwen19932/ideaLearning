@@ -1,11 +1,13 @@
 package edu.buaa.nlp.es.common;
 
-import edu.buaa.nlp.es.client.ESClient;
-import edu.buaa.nlp.es.constant.Configuration;
-import edu.buaa.nlp.es.exception.ExceptionUtil;
-import edu.buaa.nlp.es.util.Constant;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+
 import org.apache.log4j.Logger;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
@@ -16,14 +18,15 @@ import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
+
 import org.elasticsearch.search.sort.SortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import edu.buaa.nlp.es.client.ESClient;
+import edu.buaa.nlp.es.constant.Configuration;
+import edu.buaa.nlp.es.exception.ExceptionUtil;
+import edu.buaa.nlp.es.util.Constant;
 
 
 @SuppressWarnings("deprecation")

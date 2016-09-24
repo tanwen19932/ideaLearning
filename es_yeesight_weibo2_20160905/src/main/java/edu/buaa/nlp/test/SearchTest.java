@@ -146,7 +146,7 @@ public class SearchTest {
 		//jsonQuery.put(Mapper.AdvancedQuery.FIELD_SIMILARITY_ID,"001463453317000D11B8D3754915D2F"); 
 		
 		//uuid
-		//jsonQuery.put(Mapper.AdvancedQuery.FIELD_ID, new String[]{"0014671297607002CB433D5DD84E370"});
+		//jsonQuery.put(Mapper.AdvancedQuery.FIELD_ID, new String[]{"161463419583216D666E166A737511E"});
 		
 		
 		//来源

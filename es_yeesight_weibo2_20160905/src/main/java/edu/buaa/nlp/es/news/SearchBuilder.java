@@ -47,23 +47,23 @@ public class SearchBuilder {
 	private Client client;
 	private IndexBuilder builder=null;
 	private static Logger logger=Logger.getLogger(SearchBuilder.class);
-
-	//for sensitive
+	
+	//for sensitive 
 	private static Map<String,Integer> hashLeaders = null;
 	private static Map<String,Integer> hashSensiWords = null;
 	private static Map<String,Integer> hashLeadersPingyin = null;
 	private static Map<String,Integer> hashSensiWordsPingyin = null;
 	private boolean handledSensitiveWords = false;
 	private static PingyinTool pingyinTool = null ;
-
+	
 	//for field搜索
 	private static Map<String,String> hashFieldKeywords = null;	//存储可用于域搜索的关键词
 	private static Pattern patYinHao = Pattern.compile("(\"[^\"]+\")");
 	private static String yinhaoTag = "YH_"; //引号标签
-
+	
 	static {
 		pingyinTool = new PingyinTool();
-
+		
 		hashFieldKeywords = new HashMap<String,String>();
 		hashFieldKeywords.put("title", "titleZh:<value> or titleEn:<value> or titleSrc:<value>");
 		hashFieldKeywords.put("titlezh", "titleZh");
@@ -74,7 +74,7 @@ public class SearchBuilder {
 		hashFieldKeywords.put("texten", "textEn");
 		hashFieldKeywords.put("textzh", "textZh");
 	}
-
+	
 
 	public SearchBuilder() {
 		try {
@@ -83,7 +83,7 @@ public class SearchBuilder {
 			logger.error(ExceptionUtil.getExceptionTrace(e));
 		}
 	}
-
+	
 	public SearchBuilder(String clusterName,String serverAddress) {
 		try {
 			this.client = ESClient.getClient(clusterName,serverAddress);
@@ -91,8 +91,8 @@ public class SearchBuilder {
 			logger.error(ExceptionUtil.getExceptionTrace(e));
 		}
 	}
-
-
+	
+	
 	// for sensitive
 	public static boolean initSensitiveModels(String leadersFile,String sensiWordsFile)
 	{
@@ -102,12 +102,12 @@ public class SearchBuilder {
 			hashLeadersPingyin = new HashMap<String,Integer>();
 			InputStreamReader isR = new InputStreamReader(new FileInputStream(leadersFile),"utf-8");
 			BufferedReader br = new BufferedReader(isR);
-
+			
 			String line = "";
 			String clearLine = "";
 			while ((line = br.readLine()) != null) {
 				if(line.trim().isEmpty()) continue;
-
+				
 				clearLine = CharUtil.ToDBC(line);
 				clearLine = CharUtil.removeUnChar(clearLine);
 				if(clearLine.length()>1)
@@ -116,23 +116,23 @@ public class SearchBuilder {
 					hashLeadersPingyin.put(clearLine, 1);
 				}
 				hashLeaders.put(line.trim().toLowerCase(), 1);
-
+					
 			}
 			br.close();
 			isR.close();
 
-
+					
 			hashSensiWords = new HashMap<String,Integer>();
 			hashSensiWordsPingyin = new HashMap<String,Integer>();
 			isR = new InputStreamReader(new FileInputStream(sensiWordsFile),"utf-8");
 			br = new BufferedReader(isR);
-
+		
 			while ((line = br.readLine()) != null) {
 				if(line.trim().isEmpty()) continue;
-
+				
 				clearLine = CharUtil.ToDBC(line);
 				clearLine = CharUtil.removeUnChar(clearLine);
-
+				
 				if(clearLine.length()>1)
 				{
 					clearLine = pingyinTool.toPinYin(clearLine,"", PingyinTool.Type.LOWERCASE).toLowerCase();
@@ -163,7 +163,7 @@ public class SearchBuilder {
 			hashLeaders.put(word.trim().toLowerCase(), 1);
 			word = CharUtil.ToDBC(word);
 			word = CharUtil.removeUnChar(word);
-
+			
 			if(word.length()>1)
 			{
 				word = pingyinTool.toPinYin(word,"", PingyinTool.Type.LOWERCASE).toLowerCase();
@@ -189,7 +189,7 @@ public class SearchBuilder {
 			hashSensiWords.put(word.trim().toLowerCase(), 1);
 			word = CharUtil.ToDBC(word);
 			word = CharUtil.removeUnChar(word);
-
+			
 			if(word.length()>1)
 			{
 				word = pingyinTool.toPinYin(word,"", PingyinTool.Type.LOWERCASE).toLowerCase();
@@ -207,16 +207,16 @@ public class SearchBuilder {
 	{
 		try
 		{
-			String clearword = CharUtil.ToDBC(word);
+			String clearword = CharUtil.ToDBC(word); 
 			clearword = CharUtil.removeUnChar(clearword).toLowerCase();
-
-
+			
+			
 			if(clearword.length() > 1)
 			{
-
+			
 				String wordPingyin = pingyinTool.toPinYin(clearword, "", PingyinTool.Type.LOWERCASE);
-
-
+				
+				
 				if(hashLeadersPingyin != null)
 				{
 					for(String key : hashLeadersPingyin.keySet())
@@ -227,7 +227,7 @@ public class SearchBuilder {
 						}
 					}
 				}
-
+				
 				if(hashSensiWordsPingyin != null)
 				{
 					for(String key : hashSensiWordsPingyin.keySet())
@@ -239,7 +239,7 @@ public class SearchBuilder {
 					}
 				}
 			}
-
+			
 			if(hashLeaders != null)
 			{
 				for(String key : hashLeaders.keySet())
@@ -250,7 +250,7 @@ public class SearchBuilder {
 					}
 				}
 			}
-
+			
 			if(hashSensiWords != null)
 			{
 				for(String key : hashSensiWords.keySet())
@@ -293,7 +293,7 @@ public class SearchBuilder {
 		}
 		return obj;
 	}
-
+	
 	/**
 	 * 过滤器
 	 * 目前只支持日期、地区、语言、媒体级别、媒体、情感、领域分类条件过滤
@@ -313,7 +313,14 @@ public class SearchBuilder {
 		}
 		//获取过滤器设置
 		QueryBuilder filter=filterQuery(obj);
-		SearchRequestBuilder srb=client.prepareSearch(Configuration.INDEX_NAME);
+		
+		SearchRequestBuilder srb=client.prepareSearch(
+				  "news201501","news201502","news201503","news201504","news201505","news201506",
+				  "news201507","news201508","news201509","news201510","news201511","news201512",
+				  "news201601","news201602","news201603","news201604","news201605","news201606",
+				  "news201607","news201508","news201609","news201610","news201611","news201612"
+				  );
+		
 		String type=obj.getString(Mapper.Query.INDEX_TYPE);
 		if(type!=null && Constant.QUERY_INDEX_TYPE_ALL.equals(type)){
 			//TODO: add multiple index types
@@ -349,12 +356,12 @@ public class SearchBuilder {
 //		result.put(Mapper.Query.RESULT_GROUP, parseAggregationBucket((Terms) sr.getAggregations().get(Mapper.FieldArticle.SECONDE_LEVEL)));
 		return result.toString();
 	}
-
-
+	
+	
 	public SearchRequestBuilder buildQuery(JSONObject obj){
-        Object keyObj  = obj.get(Mapper.Query.KEYWORD);
-		String key= keyObj.toString();
-
+		
+		String key=obj.getString(Mapper.Query.KEYWORD);
+		
 		//for sensitive
 		if(handledSensitiveWords == false)
 		{
@@ -365,11 +372,11 @@ public class SearchBuilder {
 			}
 		}
 		handledSensitiveWords = false;
-
-
+		
+		
 		//cross
 		BoolQueryBuilder qb=QueryBuilders.boolQuery();
-/*
+/*		
 		String oldKey=JSONObject.fromObject(jsonQuery).getString(Mapper.Query.KEYWORD);
   		boolean isEn=LanguageUtil.isEnglish(oldKey);
 		if(!isEn){//检索源语言,非英文
@@ -386,7 +393,7 @@ public class SearchBuilder {
 			QueryBuilder initQb=QueryBuilders.queryStringQuery(key).field(Mapper.FieldArticle.TITLE_SRC, 5).field(Mapper.FieldArticle.TEXT_SRC, 3).field(Mapper.FieldArticle.TITLE_ZH, 2);
 			qb.must(initQb);
 		}*/
-
+		
 		QueryBuilder initQb=QueryBuilders.queryStringQuery(key)
 				.field(Mapper.FieldArticle.TITLE_SRC, Configuration.TITLE_SRC_WEIGHT) // 100)
 				.field(Mapper.FieldArticle.TITLE_EN,Configuration.TITLE_WEIGHT) //10)
@@ -394,13 +401,13 @@ public class SearchBuilder {
 				.field(Mapper.FieldArticle.TEXT_SRC,Configuration.TEXT_WEIGHT) //2)
 				.field(Mapper.FieldArticle.TEXT_EN, Configuration.TEXT_WEIGHT) //2)
 				.field(Mapper.FieldArticle.TEXT_ZH, Configuration.TEXT_WEIGHT) // 2)
-
+				
 				;
-
+		
 		QueryBuilder fsqb = initQb;
-
+		
 		//*方案零：写decay函数
-
+		
 		if(Configuration.SEARCH_TYPE==0)
 		{
 			fsqb=QueryBuilders.functionScoreQuery(initQb)
@@ -410,7 +417,7 @@ public class SearchBuilder {
 					.scoreMode(Configuration.SCORE_MODE)
 					;
 		}
-
+		
 		if(Configuration.SEARCH_TYPE==3)
 		{
 			fsqb=QueryBuilders.functionScoreQuery(initQb)
@@ -420,7 +427,7 @@ public class SearchBuilder {
 					.scoreMode(Configuration.SCORE_MODE)
 					;
 		}
-
+		
 		if(Configuration.SEARCH_TYPE==4)
 		{
 			fsqb=QueryBuilders.functionScoreQuery(initQb)
@@ -430,7 +437,7 @@ public class SearchBuilder {
 					.scoreMode(Configuration.SCORE_MODE)
 					;
 		}
-
+		
 		if(Configuration.SEARCH_TYPE==5)
 		{
 			fsqb=QueryBuilders.functionScoreQuery(initQb)
@@ -440,7 +447,7 @@ public class SearchBuilder {
 					.scoreMode(Configuration.SCORE_MODE)
 					;
 		}
-
+		
 		if(Configuration.SEARCH_TYPE==6)
 		{
 			fsqb=QueryBuilders.functionScoreQuery(initQb)
@@ -450,7 +457,7 @@ public class SearchBuilder {
 					.scoreMode(Configuration.SCORE_MODE)
 					;
 		}
-
+		
 		if(Configuration.SEARCH_TYPE==7)
 		{
 			fsqb=QueryBuilders.functionScoreQuery(initQb)
@@ -460,17 +467,17 @@ public class SearchBuilder {
 					.scoreMode(Configuration.SCORE_MODE)
 					;
 		}
-
+		
 		//*/
 
 		//*方案一：写Script
 
-
+		
 		if(Configuration.SEARCH_TYPE==1)
 		{
 			//String script = "_score+doc['pubTime'].value*0.000000000001";
 			//String script = "doc['pubTime'].value*0.0000000001";
-
+			
 			//String script1 = "" + Constant.TODAY_WEIGHT + ""; //1-2天内的权重偏置
 			//String script2 = "exp(doc['pubTime'].value*0.00000000001)";
 			//String script3 = "doc['mediaLevel'].value * 10";
@@ -482,8 +489,8 @@ public class SearchBuilder {
 					.scoreMode(Configuration.SCORE_MODE)
 					;
 		}
-
-
+		
+		
 		if(Configuration.SEARCH_TYPE==8)
 		{
 			//String script = "_score+doc['pubTime'].value*0.000000000001";
@@ -502,7 +509,7 @@ public class SearchBuilder {
 					.scoreMode(Configuration.SCORE_MODE)
 					;
 		}
-
+		
 		if(Configuration.SEARCH_TYPE==9)
 		{
 			//String script = "_score+doc['pubTime'].value*0.000000000001";
@@ -522,7 +529,7 @@ public class SearchBuilder {
 					.scoreMode(Configuration.SCORE_MODE)
 					;
 		}
-
+		
 		if(Configuration.SEARCH_TYPE==10)
 		{
 			//String script = "_score+doc['pubTime'].value*0.000000000001";
@@ -542,7 +549,7 @@ public class SearchBuilder {
 					.scoreMode(Configuration.SCORE_MODE)
 					;
 		}
-
+		
 		if(Configuration.SEARCH_TYPE==11)
 		{
 			//String script = "_score+doc['pubTime'].value*0.000000000001";
@@ -562,13 +569,13 @@ public class SearchBuilder {
 					.scoreMode(Configuration.SCORE_MODE)
 					;
 		}
-
+		
 		if(Configuration.SEARCH_TYPE==12)
 		{
 			//String script = "_score+doc['pubTime'].value*0.000000000001";
 			//String script = "doc['pubTime'].value*0.0000000001";
 			long currTime = System.currentTimeMillis() - 86400000;
-
+			
 			//String script1 = "1 + floor(doc['pubTime'].value/" + currTime + ") *" + Configuration.TIME_SCALE_WEIGHT + ""; //1-2天内的权重偏置
 			String script1 = "min(max(1,doc['pubTime'].value - " + currTime + ") ," +  Configuration.TIME_TODAY_WEIGHT + ")"; //1-2天内的权重偏置
 			//String script2 = "exp(doc['pubTime'].value*0.00000000001)";
@@ -584,24 +591,22 @@ public class SearchBuilder {
 					;
 		}
 		//*/
-
+		
 		/*方案二：写插件*/
 		/*
 		QueryBuilder fsqb=QueryBuilders.functionScoreQuery(initQb)
 				.add(ScoreFunctionBuilders.scriptFunction("custom_score", "native"))
 				;
-
+	
 		//*/
 //		qb.must(initQb);
 		FilteredQueryBuilder fqb=QueryBuilders.filteredQuery(fsqb, filterQuery(obj));
-		System.out.println(fqb.toString());
 		SearchRequestBuilder srb=client.prepareSearch("news201501","news201502","news201503","news201504","news201505","news201506",
 													  "news201507","news201508","news201509","news201510","news201511","news201512",
 													  "news201601","news201602","news201603","news201604","news201605","news201606",
 													  "news201607","news201508","news201609","news201610","news201611","news201612"
 													  );//Configuration.INDEX_NAME);	//
 		srb.setQuery(fqb);
-		System.out.println(fqb.toString());
 		String type=obj.getString(Mapper.Query.INDEX_TYPE);
 		if(type!=null && Constant.QUERY_INDEX_TYPE_ALL.equals(type)){
 			srb.setTypes(Configuration.INDEX_TYPE_ARTICLE);
@@ -621,9 +626,289 @@ public class SearchBuilder {
 		}
 		return srb;
 	}
+	
+	
+	public SearchRequestBuilder buildQueryTotal(JSONObject obj){
+		
+		String key=obj.getString(Mapper.Query.KEYWORD);
+		
+		//for sensitive
+		if(handledSensitiveWords == false)
+		{
+			int sensiResult = handleSensitiveWords(key);
+			if(sensiResult == 1)
+			{
+				return null;
+			}
+		}
+		handledSensitiveWords = false;
+		
+		
+		//cross
+		BoolQueryBuilder qb=QueryBuilders.boolQuery();
+/*		
+		String oldKey=JSONObject.fromObject(jsonQuery).getString(Mapper.Query.KEYWORD);
+  		boolean isEn=LanguageUtil.isEnglish(oldKey);
+		if(!isEn){//检索源语言,非英文
+			int k=3;
+			QueryBuilder crossQb=searchSrc(obj, k);
+			qb.should(crossQb);
+		}*/
+		/*if(isEn){
+//			srcQb=QueryBuilders.multiMatchQuery(key, new String[]{Mapper.FieldArticle.TITLE_SRC, Mapper.FieldArticle.TEXT_SRC, Mapper.FieldArticle.TEXT_EN, Mapper.FieldArticle.TITLE_EN}).type("most_fields").boost(1);
+			QueryBuilder initQb=QueryBuilders.queryStringQuery(key).field(Mapper.FieldArticle.TITLE_SRC, 5).field(Mapper.FieldArticle.TEXT_SRC, 3).field(Mapper.FieldArticle.TEXT_EN, 2).field(Mapper.FieldArticle.TITLE_EN,3).field(Mapper.FieldArticle.TITLE_ZH, 3).field(Mapper.FieldArticle.ABSTRACT_ZH, 2);
+			qb.must(initQb);
+		}else{
+//			srcQb=QueryBuilders.multiMatchQuery(key, new String[]{Mapper.FieldArticle.TITLE_SRC, Mapper.FieldArticle.TEXT_SRC, Mapper.FieldArticle.TITLE_ZH}).type("most_fields").boost(1);
+			QueryBuilder initQb=QueryBuilders.queryStringQuery(key).field(Mapper.FieldArticle.TITLE_SRC, 5).field(Mapper.FieldArticle.TEXT_SRC, 3).field(Mapper.FieldArticle.TITLE_ZH, 2);
+			qb.must(initQb);
+		}*/
+		
+		QueryBuilder initQb=QueryBuilders.queryStringQuery(key)
+				.field(Mapper.FieldArticle.TITLE_SRC, Configuration.TITLE_SRC_WEIGHT) // 100)
+				.field(Mapper.FieldArticle.TITLE_EN,Configuration.TITLE_WEIGHT) //10)
+				.field(Mapper.FieldArticle.TITLE_ZH,Configuration.TITLE_WEIGHT) //10)
+				.field(Mapper.FieldArticle.TEXT_SRC,Configuration.TEXT_WEIGHT) //2)
+				.field(Mapper.FieldArticle.TEXT_EN, Configuration.TEXT_WEIGHT) //2)
+				.field(Mapper.FieldArticle.TEXT_ZH, Configuration.TEXT_WEIGHT) // 2)
+				
+				;
+		
+		QueryBuilder fsqb = initQb;
+		
+		//*方案零：写decay函数
+		
+		if(Configuration.SEARCH_TYPE==0)
+		{
+			fsqb=QueryBuilders.functionScoreQuery(initQb)
+					//.add(ScoreFunctionBuilders.linearDecayFunction(Mapper.FieldArticle.PUBDATE, "5d").setDecay(0.98).setWeight(20F))
+					.add(ScoreFunctionBuilders.linearDecayFunction(Mapper.FieldArticle.PUBDATE, "" + Configuration.TIME_SCALE + "d").setDecay(Configuration.TIME_DECAY).setWeight(Configuration.TIME_SCALE_WEIGHT))  //.setWeight(20F))
+					.add(ScoreFunctionBuilders.gaussDecayFunction(Mapper.FieldArticle.MEDIA_LEVEL, "" + Configuration.MEDIA_SCALE + "").setDecay(Configuration.MEDIA_DECAY).setWeight(Configuration.MEDIA_SCALE_WEIGHT)) //.setWeight(20F))
+					.scoreMode(Configuration.SCORE_MODE)
+					;
+		}
+		
+		if(Configuration.SEARCH_TYPE==3)
+		{
+			fsqb=QueryBuilders.functionScoreQuery(initQb)
+					//.add(ScoreFunctionBuilders.linearDecayFunction(Mapper.FieldArticle.PUBDATE, "5d").setDecay(0.98).setWeight(20F))
+					.add(ScoreFunctionBuilders.gaussDecayFunction(Mapper.FieldArticle.PUBDATE,"2016-08-11","" + Configuration.TIME_SCALE + "d").setDecay(Configuration.TIME_DECAY).setWeight(Configuration.TIME_SCALE_WEIGHT))  //.setWeight(20F))
+					.add(ScoreFunctionBuilders.gaussDecayFunction(Mapper.FieldArticle.MEDIA_LEVEL, "" + Configuration.MEDIA_SCALE + "").setDecay(Configuration.MEDIA_DECAY).setWeight(Configuration.MEDIA_SCALE_WEIGHT)) //.setWeight(20F))
+					.scoreMode(Configuration.SCORE_MODE)
+					;
+		}
+		
+		if(Configuration.SEARCH_TYPE==4)
+		{
+			fsqb=QueryBuilders.functionScoreQuery(initQb)
+					//.add(ScoreFunctionBuilders.linearDecayFunction(Mapper.FieldArticle.PUBDATE, "5d").setDecay(0.98).setWeight(20F))
+					.add(ScoreFunctionBuilders.linearDecayFunction(Mapper.FieldArticle.PUBDATE, "" + Configuration.TIME_SCALE + "d").setDecay(Configuration.TIME_DECAY).setWeight(Configuration.TIME_SCALE_WEIGHT))  //.setWeight(20F))
+					.add(ScoreFunctionBuilders.gaussDecayFunction(Mapper.FieldArticle.MEDIA_LEVEL, 1).setDecay(Configuration.MEDIA_DECAY).setWeight(Configuration.MEDIA_SCALE_WEIGHT)) //.setWeight(20F))
+					.scoreMode(Configuration.SCORE_MODE)
+					;
+		}
+		
+		if(Configuration.SEARCH_TYPE==5)
+		{
+			fsqb=QueryBuilders.functionScoreQuery(initQb)
+					//.add(ScoreFunctionBuilders.linearDecayFunction(Mapper.FieldArticle.PUBDATE, "5d").setDecay(0.98).setWeight(20F))
+					.add(ScoreFunctionBuilders.gaussDecayFunction(Mapper.FieldArticle.PUBDATE,"2016-08-11","" + Configuration.TIME_SCALE + "d").setDecay(Configuration.TIME_DECAY).setWeight(Configuration.TIME_SCALE_WEIGHT))  //.setWeight(20F))
+					.add(ScoreFunctionBuilders.gaussDecayFunction(Mapper.FieldArticle.MEDIA_LEVEL,  Configuration.MEDIA_SCALE ).setDecay(Configuration.MEDIA_DECAY).setWeight(Configuration.MEDIA_SCALE_WEIGHT)) //.setWeight(20F))
+					.scoreMode(Configuration.SCORE_MODE)
+					;
+		}
+		
+		if(Configuration.SEARCH_TYPE==6)
+		{
+			fsqb=QueryBuilders.functionScoreQuery(initQb)
+					//.add(ScoreFunctionBuilders.linearDecayFunction(Mapper.FieldArticle.PUBDATE, "5d").setDecay(0.98).setWeight(20F))
+					.add(ScoreFunctionBuilders.linearDecayFunction(Mapper.FieldArticle.PUBDATE, "" + Configuration.TIME_SCALE + "d").setDecay(Configuration.TIME_DECAY).setWeight(Configuration.TIME_SCALE_WEIGHT))  //.setWeight(20F))
+					//.add(ScoreFunctionBuilders.gaussDecayFunction(Mapper.FieldArticle.MEDIA_LEVEL, 1).setDecay(Configuration.MEDIA_DECAY).setWeight(Configuration.MEDIA_SCALE_WEIGHT)) //.setWeight(20F))
+					.scoreMode(Configuration.SCORE_MODE)
+					;
+		}
+		
+		if(Configuration.SEARCH_TYPE==7)
+		{
+			fsqb=QueryBuilders.functionScoreQuery(initQb)
+					//.add(ScoreFunctionBuilders.linearDecayFunction(Mapper.FieldArticle.PUBDATE, "5d").setDecay(0.98).setWeight(20F))
+					.add(ScoreFunctionBuilders.gaussDecayFunction(Mapper.FieldArticle.PUBDATE,"" + Configuration.TIME_SCALE + "d").setDecay(Configuration.TIME_DECAY).setWeight(Configuration.TIME_SCALE_WEIGHT))  //.setWeight(20F))
+					//.add(ScoreFunctionBuilders.gaussDecayFunction(Mapper.FieldArticle.MEDIA_LEVEL,  Configuration.MEDIA_SCALE ).setDecay(Configuration.MEDIA_DECAY).setWeight(Configuration.MEDIA_SCALE_WEIGHT)) //.setWeight(20F))
+					.scoreMode(Configuration.SCORE_MODE)
+					;
+		}
+		
+		//*/
 
+		//*方案一：写Script
 
+		
+		if(Configuration.SEARCH_TYPE==1)
+		{
+			//String script = "_score+doc['pubTime'].value*0.000000000001";
+			//String script = "doc['pubTime'].value*0.0000000001";
+			
+			//String script1 = "" + Constant.TODAY_WEIGHT + ""; //1-2天内的权重偏置
+			//String script2 = "exp(doc['pubTime'].value*0.00000000001)";
+			//String script3 = "doc['mediaLevel'].value * 10";
+			String script2 = "exp(doc['pubTime'].value*" + Configuration.TIME_WEIGHT + ")";
+			String script3 = "doc['mediaLevel'].value *" + Configuration.MEDIA_WEIGHT;
+			fsqb=QueryBuilders.functionScoreQuery(initQb)
+					.add(ScoreFunctionBuilders.scriptFunction(script2))
+					.add(ScoreFunctionBuilders.scriptFunction(script3))
+					.scoreMode(Configuration.SCORE_MODE)
+					;
+		}
+		
+		
+		if(Configuration.SEARCH_TYPE==8)
+		{
+			//String script = "_score+doc['pubTime'].value*0.000000000001";
+			//String script = "doc['pubTime'].value*0.0000000001";
+			long currTime = System.currentTimeMillis() - 86400000;
+			//String script1 = "1 + floor(doc['pubTime'].value/" + currTime + ") *" + Configuration.TIME_SCALE_WEIGHT + ""; //1-2天内的权重偏置
+			String script1 = "min(max(1,doc['pubTime'].value - " + currTime + ") ," +  Configuration.TIME_TODAY_WEIGHT + ")"; //1-2天内的权重偏置
+			//String script2 = "exp(doc['pubTime'].value*0.00000000001)";
+			//String script3 = "doc['mediaLevel'].value * 10";
+			String script2 = "exp(doc['pubTime'].value*" + Configuration.TIME_WEIGHT + ")";
+			String script3 = "doc['mediaLevel'].value *" + Configuration.MEDIA_WEIGHT;
+			fsqb=QueryBuilders.functionScoreQuery(initQb)
+					.add(ScoreFunctionBuilders.scriptFunction(script1))
+					.add(ScoreFunctionBuilders.scriptFunction(script2))
+					.add(ScoreFunctionBuilders.scriptFunction(script3))
+					.scoreMode(Configuration.SCORE_MODE)
+					;
+		}
+		
+		if(Configuration.SEARCH_TYPE==9)
+		{
+			//String script = "_score+doc['pubTime'].value*0.000000000001";
+			//String script = "doc['pubTime'].value*0.0000000001";
+			long currTime = System.currentTimeMillis() - 86400000;
+			//String script1 = "1 + floor(doc['pubTime'].value/" + currTime + ") *" + Configuration.TIME_SCALE_WEIGHT + ""; //1-2天内的权重偏置
+			String script1 = "min(max(1,doc['pubTime'].value - " + currTime + ") ," +  Configuration.TIME_TODAY_WEIGHT + ")"; //1-2天内的权重偏置
+			//String script2 = "exp(doc['pubTime'].value*0.00000000001)";
+			//String script3 = "doc['mediaLevel'].value * 10";
+			//String script2 = "exp(doc['pubTime'].value*" + Configuration.TIME_WEIGHT + ")";
+			String script2 = "(doc['pubTime'].value*" + Configuration.TIME_WEIGHT + ")";
+			String script3 = "doc['mediaLevel'].value";
+			fsqb=QueryBuilders.functionScoreQuery(initQb)
+					.add(ScoreFunctionBuilders.scriptFunction(script1))
+					.add(ScoreFunctionBuilders.scriptFunction(script2))
+					.add(ScoreFunctionBuilders.scriptFunction(script3))
+					.scoreMode(Configuration.SCORE_MODE)
+					;
+		}
+		
+		if(Configuration.SEARCH_TYPE==10)
+		{
+			//String script = "_score+doc['pubTime'].value*0.000000000001";
+			//String script = "doc['pubTime'].value*0.0000000001";
+			long currTime = System.currentTimeMillis() - 86400000;
+			//String script1 = "1 + floor(doc['pubTime'].value/" + currTime + ") *" + Configuration.TIME_SCALE_WEIGHT + ""; //1-2天内的权重偏置
+			String script1 = "min(max(1,doc['pubTime'].value - " + currTime + ") ," +  Configuration.TIME_TODAY_WEIGHT + ")"; //1-2天内的权重偏置
+			//String script2 = "exp(doc['pubTime'].value*0.00000000001)";
+			//String script3 = "doc['mediaLevel'].value * 10";
+			//String script2 = "exp(doc['pubTime'].value*" + Configuration.TIME_WEIGHT + ")";
+			String script2 = "(doc['pubTime'].value*" + Configuration.TIME_WEIGHT + ")";
+			String script3 = "doc['mediaLevel'].value";
+			fsqb=QueryBuilders.functionScoreQuery(initQb)
+					.add(ScoreFunctionBuilders.scriptFunction(script1))
+					//.add(ScoreFunctionBuilders.scriptFunction(script2))
+					.add(ScoreFunctionBuilders.scriptFunction(script3))
+					.scoreMode(Configuration.SCORE_MODE)
+					;
+		}
+		
+		if(Configuration.SEARCH_TYPE==11)
+		{
+			//String script = "_score+doc['pubTime'].value*0.000000000001";
+			//String script = "doc['pubTime'].value*0.0000000001";
+			long currTime = System.currentTimeMillis() - 86400000;
+			//String script1 = "1 + floor(doc['pubTime'].value/" + currTime + ") *" + Configuration.TIME_SCALE_WEIGHT + ""; //1-2天内的权重偏置
+			String script1 = "min(max(1,doc['pubTime'].value - " + currTime + ") ," +  Configuration.TIME_TODAY_WEIGHT + ")"; //1-2天内的权重偏置
+			//String script2 = "exp(doc['pubTime'].value*0.00000000001)";
+			//String script3 = "doc['mediaLevel'].value * 10";
+			//String script2 = "exp(doc['pubTime'].value*" + Configuration.TIME_WEIGHT + ")";
+			String script2 = "(doc['pubTime'].value*" + Configuration.TIME_WEIGHT + ")";
+			String script3 = "doc['mediaLevel'].value*" + Configuration.MEDIA_WEIGHT;
+			fsqb=QueryBuilders.functionScoreQuery(initQb)
+					.add(ScoreFunctionBuilders.scriptFunction(script1))
+					//.add(ScoreFunctionBuilders.scriptFunction(script2))
+					.add(ScoreFunctionBuilders.scriptFunction(script3))
+					.scoreMode(Configuration.SCORE_MODE)
+					;
+		}
+		
+		if(Configuration.SEARCH_TYPE==12)
+		{
+			//String script = "_score+doc['pubTime'].value*0.000000000001";
+			//String script = "doc['pubTime'].value*0.0000000001";
+			long currTime = System.currentTimeMillis() - 86400000;
+			
+			//String script1 = "1 + floor(doc['pubTime'].value/" + currTime + ") *" + Configuration.TIME_SCALE_WEIGHT + ""; //1-2天内的权重偏置
+			String script1 = "min(max(1,doc['pubTime'].value - " + currTime + ") ," +  Configuration.TIME_TODAY_WEIGHT + ")"; //1-2天内的权重偏置
+			//String script2 = "exp(doc['pubTime'].value*0.00000000001)";
+			//String script3 = "doc['mediaLevel'].value * 10";
+			//String script2 = "exp(doc['pubTime'].value*" + Configuration.TIME_WEIGHT + ")";
+			String script2 = "exp((doc['pubTime'].value - " + Configuration.BASE_TIME + ") * " + Configuration.TIME_WEIGHT + ")" ;
+			String script3 = "doc['mediaLevel'].value";
+			fsqb=QueryBuilders.functionScoreQuery(initQb)
+					.add(ScoreFunctionBuilders.scriptFunction(script1))
+					.add(ScoreFunctionBuilders.scriptFunction(script2))
+					.add(ScoreFunctionBuilders.scriptFunction(script3))
+					.scoreMode(Configuration.SCORE_MODE)
+					;
+		}
+		//*/
+		
+		/*方案二：写插件*/
+		/*
+		QueryBuilder fsqb=QueryBuilders.functionScoreQuery(initQb)
+				.add(ScoreFunctionBuilders.scriptFunction("custom_score", "native"))
+				;
+	
+		//*/
+//		qb.must(initQb);
+		FilteredQueryBuilder fqb=QueryBuilders.filteredQuery(fsqb, filterQuery(obj));
+		SearchRequestBuilder srb=client.prepareSearch(
+				"news201601","news201602","news201603","news201604","news201605","news201606",
+				"news201607","news201508","news201609","news201610","news201611","news201612",
+				"news201501","news201502","news201503","news201504","news201505","news201506",
+				"news201507","news201508","news201509","news201510","news201511","news201512",
+				"news201401","news201402","news201403","news201404","news201405","news201406",
+				"news201407","news201408","news201409","news201410","news201411","news201412",
+				"news201301","news201302","news201303","news201304","news201305","news201306",
+				"news201307","news201308","news201309","news201310","news201311","news201312",
+				"news201201","news201202","news201203","news201204","news201205","news201206",
+				"news201207","news201208","news201209","news201210","news201211","news201212",
+				"news201101","news201102","news201103","news201104","news201105","news201106",
+				"news201107","news201108","news201109","news201110","news201111","news201112",
+				"news201001","news201002","news201003","news201004","news201005","news201006",
+				"news201007","news201008","news201009","news201010","news201011","news201012"
+													  );//Configuration.INDEX_NAME);	//
+		srb.setQuery(fqb);
+		String type=obj.getString(Mapper.Query.INDEX_TYPE);
+		if(type!=null && Constant.QUERY_INDEX_TYPE_ALL.equals(type)){
+			srb.setTypes(Configuration.INDEX_TYPE_ARTICLE);
+		}else{
+			srb.setTypes(type);
+		}
+		//是否高亮
+		boolean highlight=obj.getBoolean(Mapper.Query.HIGHLIGHT);
+		if(highlight){
+			srb
+			.addHighlightedField(Mapper.FieldArticle.TITLE_SRC)
+			.addHighlightedField(Mapper.FieldArticle.TITLE_ZH)
+			.addHighlightedField(Mapper.FieldArticle.TITLE_EN)
+			.addHighlightedField(Mapper.FieldArticle.ABSTRACT_EN)
+			.addHighlightedField(Mapper.FieldArticle.ABSTRACT_ZH,1000)
+			;
+		}
+		return srb;
+	}	
 
+	
 	/**
 	 * 高级检索
 	 * 1.替换逻辑符号，空格替换为||
@@ -633,7 +918,7 @@ public class SearchBuilder {
 	 * @return
 	 */
 	public String crossSearch(String jsonQuery){
-
+		
 		JSONObject obj=null;
 		try {
 			obj=JSONObject.fromObject(jsonQuery);
@@ -648,7 +933,7 @@ public class SearchBuilder {
 			logger.error(ExceptionUtil.getExceptionTrace(e));
 			return null;
 		}
-
+		
 		try
 		{
 			SearchRequestBuilder srb=buildQuery(obj);
@@ -691,7 +976,7 @@ public class SearchBuilder {
 			return "{\"resultList\":[],\"resultCount\":0}";
 		}
 	}
-
+	
 	/**
 	 * 为专题分析提供，采用scroll
 	 * @param jsonQuery
@@ -744,7 +1029,7 @@ public class SearchBuilder {
 		System.out.println("time:"+(e1-s1)/1000);
 		return result.toString();
 	}
-
+	
 	//状态为green的shard数量
 	private int greenShards(JSONObject obj){
 		ClusterHealthResponse chr=client.admin().cluster()
@@ -757,22 +1042,22 @@ public class SearchBuilder {
 		}
 		return 0;
 	}
-
+	
 	public JSONObject initAdvancedQuery(String jsonQuery) throws QueryFormatException{
 		//保证基本信息完整
-
+		
 		JSONObject obj=initQuery(jsonQuery);
 		String keyword=obj.getString(Mapper.Query.KEYWORD);
 		keyword = initKeyword(keyword);
 		obj.put(Mapper.Query.KEYWORD, keyword.trim());
-
+		
 		/*
 		//for test the following code
 		JSONObject qb3=new JSONObject();
 		qb3.put(Mapper.AdvancedQuery.FIELD, Mapper.FieldArticle.ABSTRACT_ZH);
 		qb3.put(Mapper.AdvancedQuery.KEYWORD, "降水");
 		qb3.put(Mapper.AdvancedQuery.OPERATOR, Constant.QUERY_OPERATOR_AND);
-
+		
 		JSONObject qb4=new JSONObject();
 		qb4.put(Mapper.AdvancedQuery.FIELD, Mapper.FieldArticle.TITLE_ZH);
 		qb4.put(Mapper.AdvancedQuery.KEYWORD, "长江");
@@ -782,8 +1067,8 @@ public class SearchBuilder {
 		adArr.add(qb4);
 		obj.put(Mapper.AdvancedQuery.QUERY_BODY, adArr.toString());
 		*/
-
-
+		
+		
 		//
 		/*
 		JSONArray arr=JSONArray.fromObject(obj.getString(Mapper.AdvancedQuery.QUERY_BODY));
@@ -812,25 +1097,25 @@ public class SearchBuilder {
 		}
 		obj.put(Mapper.AdvancedQuery.KEYWORD, sb.toString().replaceAll("/", "//"));
 		*/
-
+		
 		/*//for test
 		//String query = "(titleZh:(手机) and (titleZh:(行业) or titleZh:(发布) or  titleZh:(政策))";
 		//String query = "titleZh:\"手机\" and (titleZh:\"行业\"  or titleZh:\"发布\" or  titleZh:\"政策\")";
 		//obj.put(Mapper.AdvancedQuery.KEYWORD, query); */
-
+		
 		return obj;
 	}
-
-
-
-
+	
+	
+	
+	
 	public String initKeyword(String keyword) throws QueryFormatException{
 		//keyword = "titleZh:\"中国\"  or titleEn:\"中国\" or titleSrc:\"中国\"";
 		//keyword = "TITLE:冰棍";
 		//keyword = "\"冰棍\"";
-
+		
 		//TODO 需进一步提高容错性
-
+		
 		//把 引号的独立出来作为一个词
 		Matcher matYinhao = patYinHao.matcher(keyword);
 		int index = 0;
@@ -845,7 +1130,7 @@ public class SearchBuilder {
 		{
 			keyword = keyword.replace(hashYinhao.get(key), key);
 		}
-
+		keyword = checkBracketByRegexList(keyword);
 		keyword = keyword.trim();
 		keyword= keyword.replaceAll("((and|not|or)\\s*)+\\s*\\(\\s*\\)","");
 		keyword= keyword.replaceAll("((and|not|or)\\s*)+\\s*\\(\"\\s*\"\\)","");
@@ -858,33 +1143,33 @@ public class SearchBuilder {
 				.replaceAll("“", " \" ")
 				.replaceAll("”", " \" ")
 				.trim();
-
-
-
+		
+		
+		
 		keyword = keyword.replaceAll("\\s+", " ");
 		keyword = keyword.replaceAll("(and|AND)\\s+(not|NOT)", "_AND_NOT_");
 		keyword = keyword.replaceAll("and not", " ");
 		keyword = keyword.replaceAll("\\s+(or|OR)\\s+", Constant.QUERY_OPERATOR_OR2);
 		keyword = keyword.replaceAll("\\s+(and|AND)\\s+", Constant.QUERY_OPERATOR_AND2);
 		keyword = keyword.replaceAll("\\s+(not|NOT)\\s+", Constant.QUERY_OPERATOR_NOT2);
-
+		
 		keyword=keyword.replaceAll("\\(", " ( ")
 				.replaceAll("\\s*\\(\\s*", "_(_")
 				.replaceAll("\\s*\\)\\s*", "_)_")
-				.trim();
-
+				.trim();		
+		
 		keyword=keyword.replace(" ", Constant.QUERY_OPERATOR_AND)
 				.replace("&", Constant.QUERY_OPERATOR_AND)
 				.replace("|", Constant.QUERY_OPERATOR_OR)
 				.replace("~", Constant.QUERY_OPERATOR_NOT)
 				;
-
+		
 		keyword = keyword.replaceAll( "_AND_NOT_" ," and not ");
 		keyword = keyword.replaceAll( Constant.QUERY_OPERATOR_OR2," " + Constant.QUERY_OPERATOR_OR + " ");
 		keyword = keyword.replaceAll( Constant.QUERY_OPERATOR_AND2," " + Constant.QUERY_OPERATOR_AND + " ");
 		keyword = keyword.replaceAll( Constant.QUERY_OPERATOR_NOT2," " + Constant.QUERY_OPERATOR_NOT + " ");
-
-
+		
+		
 		keyword = keyword.replace( "_(_" ," ( ");
 		keyword = keyword.replace( "_)_" ," ) ");
 
@@ -894,9 +1179,9 @@ public class SearchBuilder {
 		for(String item : items)
 		{
 			if(item.trim().isEmpty()) continue;
-			if(item.trim().equalsIgnoreCase("and")
+			if(item.trim().equalsIgnoreCase("and") 
 					|| item.equalsIgnoreCase("not")
-					|| item.equalsIgnoreCase("or")
+					|| item.equalsIgnoreCase("or") 
 					|| item.equalsIgnoreCase("(")
 					|| item.equalsIgnoreCase(")")
 					)
@@ -907,8 +1192,8 @@ public class SearchBuilder {
 			{
 				keyword += item + " ";
 			}
-			else
-			{
+			else		
+			{	
 				//对于每个单元，都是用 引号 强括号
 				if(item.contains(":"))
 				{
@@ -935,7 +1220,7 @@ public class SearchBuilder {
 							{
 								keyword = " " + field + ":" + value + " ";
 							}
-
+							
 						}
 						else
 						{
@@ -949,7 +1234,7 @@ public class SearchBuilder {
 				}
 				else
 				{
-
+					
 					keyword += " \"" + item + "\" ";
 				}
 			}
@@ -964,31 +1249,52 @@ public class SearchBuilder {
 		keyword = keyword.replaceAll("(NOT\\s+)+"," NOT ");
 		keyword = keyword.replaceAll("(AND\\s+)+"," AND ");
 		keyword = keyword.replaceAll("\\s+"," ");
-
+		
 		keyword = keyword.trim();
-
-        keyword =  check(keyword);
-
-
+		
 		for(String key : hashYinhao.keySet())
 		{
 			keyword = keyword.replace("\"" + key + "\"", hashYinhao.get(key));
-			keyword = keyword.replace(key+"(?=^\\d)", hashYinhao.get(key));
+			keyword = keyword.replace(key + "(?=^\\d)", hashYinhao.get(key));
+		}
+		return keyword;
+	}
+	private String checkBracketByRegexList(String keyword) {
+		List<String> regexes = new ArrayList<>();
+		regexes.add("(and|not|or)\\s*\\(\\s*\\)");
+		regexes.add("(and|not|or)\\s*\\s*\\(\"\\s*\"\\)");
+		regexes.add("and\\s*\\(\"\\s*\\)");
+		regexes.add("and\\s+not\\s*\\(\\s*\\)");
+		regexes.add("and\\s*\\(\\s*\\)");
+		regexes.add("\\(\\s*\\)");
+		while(true){
+			String temp =  keyword;
+			for (String tempRegex : regexes) {
+				try {
+					keyword = checkBracket(tempRegex, keyword);
+				} catch (Exception e) {
+					System.out.println(tempRegex);
+					e.printStackTrace();
+
+				}
+			}
+			if(keyword.equals(temp)){
+				break;
+			}
 		}
 		return keyword;
 	}
 
-    private String check(String keyword){
-        String regex = "\\(\\s*\\)";
-        Pattern pattern = Pattern.compile(regex);
-        Matcher matcher = pattern.matcher(keyword);
-
-        if(matcher.find()){
-            matcher.replaceAll("");
-        }
-        return keyword;
-    }
-
+	private String checkBracket(String regex, String keyword) {
+		Pattern pattern = Pattern.compile(regex);
+		Matcher matcher = pattern.matcher(keyword);
+		if (!matcher.find()) {
+			keyword = matcher.replaceAll("");
+		}
+		return keyword;
+	}
+	
+	
 	/**
 	 * 封装查询过滤器
 	 * 过滤内容包括：
@@ -998,7 +1304,7 @@ public class SearchBuilder {
 	 */
 	private QueryBuilder filterQuery(JSONObject jsonQuery){
 		List<QueryBuilder> filters=new ArrayList<QueryBuilder>();
-
+		
 		//日期过滤
 		QueryBuilder fbDate=null;
 		if(Constant.isNullKey(jsonQuery, Mapper.AdvancedQuery.FIELD_BEGIN_DATE) ){
@@ -1024,7 +1330,7 @@ public class SearchBuilder {
 //		FilterBuilder fbRegion=null;
 //		if(!Constant.isNullKey(jsonQuery, Mapper.AdvancedQuery.FIELD_REGION)){
 //			JSONArray arr=jsonQuery.getJSONArray(Mapper.AdvancedQuery.FIELD_REGION);
-//			int[] regionIds=new int[arr.size()];
+//			int[] regionIds=new int[arr.size()]; 
 //			for(int i=0; i<arr.size(); i++){
 //				regionIds[i]=arr.getInt(i);
 //			}
@@ -1034,44 +1340,44 @@ public class SearchBuilder {
 		QueryBuilder fbCountryNameZh=null;
 		if(!Constant.isNullKey(jsonQuery, Mapper.AdvancedQuery.FIELD_COUNTRY_NAME_ZH)){
 			JSONArray arr=jsonQuery.getJSONArray(Mapper.AdvancedQuery.FIELD_COUNTRY_NAME_ZH);
-			String[] regionIds=new String[arr.size()];
+			String[] regionIds=new String[arr.size()]; 
 			for(int i=0; i<arr.size(); i++){
 				regionIds[i]=arr.getString(i);
 			}
 			fbCountryNameZh=QueryBuilders.termsQuery(Mapper.FieldArticle.COUNTRY_NAME_ZH, regionIds);
 			filters.add(fbCountryNameZh);
-		}
-
-
+		}	
+		
+		
 		//语言
 		QueryBuilder fbLang=null;
 		if(!Constant.isNullKey(jsonQuery, Mapper.AdvancedQuery.FIELD_LANGUAGE)){
 			JSONArray arr=jsonQuery.getJSONArray(Mapper.AdvancedQuery.FIELD_LANGUAGE);
-			String[] langIds=new String[arr.size()];
+			String[] langIds=new String[arr.size()]; 
 			for(int i=0; i<arr.size(); i++){
 				langIds[i]=arr.getString(i);
 			}
 			fbLang=QueryBuilders.termsQuery(Mapper.FieldArticle.LANGUAGE_CODE, langIds);
 			filters.add(fbLang);
 		}
-
+		
 		QueryBuilder fbLangTName=null;
 		if(!Constant.isNullKey(jsonQuery, Mapper.AdvancedQuery.FIELD_LANGUAGE_TNAME)){
 			JSONArray arr=jsonQuery.getJSONArray(Mapper.AdvancedQuery.FIELD_LANGUAGE_TNAME);
-			String[] langIds=new String[arr.size()];
+			String[] langIds=new String[arr.size()]; 
 			for(int i=0; i<arr.size(); i++){
 				langIds[i]=arr.getString(i);
 			}
 			fbLangTName=QueryBuilders.termsQuery(Mapper.FieldArticle.LANGUAGE_TNAME, langIds);
 			filters.add(fbLangTName);
 		}
-
-
+		
+		
 		//媒体级别
 		QueryBuilder fbMediaLevel=null;
 		if(!Constant.isNullKey(jsonQuery, Mapper.AdvancedQuery.FIELD_MEDIA_LEVEL)){
 			JSONArray arr=jsonQuery.getJSONArray(Mapper.AdvancedQuery.FIELD_MEDIA_LEVEL);
-			int[] levelIds=new int[arr.size()];
+			int[] levelIds=new int[arr.size()]; 
 			for(int i=0; i<arr.size(); i++){
 				levelIds[i]=arr.getInt(i);
 			}
@@ -1082,7 +1388,7 @@ public class SearchBuilder {
 		QueryBuilder fbSentiment=null;
 		if(!Constant.isNullKey(jsonQuery, Mapper.AdvancedQuery.FIELD_SENTIMENT)){
 			JSONArray arr=jsonQuery.getJSONArray(Mapper.AdvancedQuery.FIELD_SENTIMENT);
-			int[] sentimentIds=new int[arr.size()];
+			int[] sentimentIds=new int[arr.size()]; 
 			for(int i=0; i<arr.size(); i++){
 				sentimentIds[i]=arr.getInt(i);
 			}
@@ -1093,22 +1399,22 @@ public class SearchBuilder {
 		QueryBuilder fbCategory=null;
 		if(!Constant.isNullKey(jsonQuery, Mapper.AdvancedQuery.FIELD_CATEGORY)){
 			JSONArray arr=jsonQuery.getJSONArray(Mapper.AdvancedQuery.FIELD_CATEGORY);
-			int[] categoryIds=new int[arr.size()];
+			int[] categoryIds=new int[arr.size()]; 
 			for(int i=0; i<arr.size(); i++){
 				categoryIds[i]=arr.getInt(i);
 			}
 			fbCategory=QueryBuilders.termsQuery(Mapper.FieldArticle.CATEGORY_ID, categoryIds);
 			filters.add(fbCategory);
 		}
+		
 
-
-
+		
 		//敏感
 		//*
 		QueryBuilder fbSensitive=null;
 		if(!Constant.isNullKey(jsonQuery, Mapper.AdvancedQuery.FIELD_SENSITIVE)){
 			JSONArray arr=jsonQuery.getJSONArray(Mapper.AdvancedQuery.FIELD_SENSITIVE);
-			int[] sensitiveIds=new int[arr.size()];
+			int[] sensitiveIds=new int[arr.size()]; 
 			for(int i=0; i<arr.size(); i++){
 				sensitiveIds[i]=arr.getInt(i);
 			}
@@ -1117,44 +1423,44 @@ public class SearchBuilder {
 		}
 		else
 		{
-
+			
 			int[] sensitiveIds=new int[1];
 			sensitiveIds[0] = 0;
 			fbSensitive=QueryBuilders.termsQuery(Mapper.FieldArticle.IS_SENSITIVE, sensitiveIds);
 			filters.add(fbSensitive);
 		}
 		//*/
-
+		
 
 //		//媒体
 //		FilterBuilder fbMedia=null;
 //		if(!Constant.isNullKey(jsonQuery, Mapper.AdvancedQuery.FIELD_MEDIA)){
 //			JSONArray arr=jsonQuery.getJSONArray(Mapper.AdvancedQuery.FIELD_MEDIA);
-//			int[] mediaIds=new int[arr.size()];
+//			int[] mediaIds=new int[arr.size()]; 
 //			for(int i=0; i<arr.size(); i++){
 //				mediaIds[i]=arr.getInt(i);
 //			}
 //			fbMedia=FilterBuilders.inFilter(Mapper.FieldArticle.MEDIA_ID, mediaIds);
 //			filters.add(fbMedia);
 //		}
-
+		
 		//媒体类型
 		QueryBuilder fbMediaType=null;
 		if(!Constant.isNullKey(jsonQuery, Mapper.AdvancedQuery.FIELD_MEDIA_TYPE)){
 			JSONArray arr=jsonQuery.getJSONArray(Mapper.AdvancedQuery.FIELD_MEDIA_TYPE);
-			int[] mediaTypes=new int[arr.size()];
+			int[] mediaTypes=new int[arr.size()]; 
 			for(int i=0; i<arr.size(); i++){
 				mediaTypes[i]=arr.getInt(i);
 			}
 			fbMediaType=QueryBuilders.termsQuery(Mapper.FieldArticle.MEDIA_TYPE, mediaTypes);
 			filters.add(fbMediaType);
 		}
-
+		
 		//媒体名称
 		QueryBuilder fbMediaNameZh=null;
 		if(!Constant.isNullKey(jsonQuery, Mapper.AdvancedQuery.FIELD_MEDIA_NAME_ZH)){
 			JSONArray arr=jsonQuery.getJSONArray(Mapper.AdvancedQuery.FIELD_MEDIA_NAME_ZH);
-			String[] mediaTypes=new String[arr.size()];
+			String[] mediaTypes=new String[arr.size()]; 
 			for(int i=0; i<arr.size(); i++){
 				mediaTypes[i]=arr.getString(i);
 			}
@@ -1165,7 +1471,7 @@ public class SearchBuilder {
 		QueryBuilder fbMediaNot=null;
 		if(!Constant.isNullKey(jsonQuery, Mapper.AdvancedQuery.FIELD_MEDIA_NOT)){
 			JSONArray arr=jsonQuery.getJSONArray(Mapper.AdvancedQuery.FIELD_MEDIA_NOT);
-			int[] mediaIds=new int[arr.size()];
+			int[] mediaIds=new int[arr.size()]; 
 			for(int i=0; i<arr.size(); i++){
 				mediaIds[i]=arr.getInt(i);
 			}
@@ -1178,15 +1484,15 @@ public class SearchBuilder {
 			//fbUuid=FilterBuilders.termFilter(Mapper.FieldArticle.ID, jsonQuery.getString(Mapper.AdvancedQuery.FIELD_ID));
 			//uuid 没有store，所以用_id
 			JSONArray arr=jsonQuery.getJSONArray(Mapper.AdvancedQuery.FIELD_ID);
-			String[] ids=new String[arr.size()];
+			String[] ids=new String[arr.size()]; 
 			for(int i=0; i<arr.size(); i++){
 				ids[i]=arr.getString(i);
 			}
 			//fbUuid=FilterBuilders.termFilter(Mapper.AdvancedQuery.FIELD_ID, jsonQuery.getString(Mapper.AdvancedQuery.FIELD_ID));
 			fbUuid=QueryBuilders.termsQuery(Mapper.AdvancedQuery.FIELD_ID, ids);
 			filters.add(fbUuid);
-		}
-
+		}		
+		
 		//similarityID
 		QueryBuilder fbSimilarityID=null;
 		if(!Constant.isNullKey(jsonQuery, Mapper.AdvancedQuery.FIELD_SIMILARITY_ID)){
@@ -1195,23 +1501,23 @@ public class SearchBuilder {
 			fbSimilarityID=QueryBuilders.termQuery(Mapper.FieldArticle.SIMILARITY_ID, simId);
 			filters.add(fbSimilarityID);
 		}
-
+		
 		//comeFrom
 		QueryBuilder fbComeFrom=null;
 		if(!Constant.isNullKey(jsonQuery, Mapper.AdvancedQuery.FIELD_COMEFROM)){
 			//fbUuid=FilterBuilders.termFilter(Mapper.FieldArticle.ID, jsonQuery.getString(Mapper.AdvancedQuery.FIELD_ID));
 			//uuid 没有store，所以用_id
 			JSONArray arr=jsonQuery.getJSONArray(Mapper.AdvancedQuery.FIELD_COMEFROM);
-			String[] ids=new String[arr.size()];
+			String[] ids=new String[arr.size()]; 
 			for(int i=0; i<arr.size(); i++){
 				ids[i]=arr.getString(i);
 			}
 			//fbUuid=FilterBuilders.termFilter(Mapper.AdvancedQuery.FIELD_ID, jsonQuery.getString(Mapper.AdvancedQuery.FIELD_ID));
 			fbComeFrom=QueryBuilders.termsQuery(Mapper.AdvancedQuery.FIELD_COMEFROM, ids);
 			filters.add(fbComeFrom);
-		}
-
-
+		}	
+		
+		
 		//集成
 		QueryBuilder[] fbs=new QueryBuilder[filters.size()];
 		BoolQueryBuilder qb=QueryBuilders.boolQuery();
@@ -1220,12 +1526,12 @@ public class SearchBuilder {
 		}
 		return qb;
 	}
-
+	
 	//分组统计
 	private AbstractAggregationBuilder termAggregation(String field){
 		return AggregationBuilders.terms(field).field(field).size(0);
 	}
-
+	
 	private JSONObject getResultByType(SearchHit sh, String type){
 		if(type==null || "".equalsIgnoreCase(type)) return null;
 		if(type.equalsIgnoreCase(Constant.QUERY_RESULT_FRONT)) return getResult4Front(sh);
@@ -1233,7 +1539,7 @@ public class SearchBuilder {
 		if(type.equalsIgnoreCase(Constant.QUERY_RESULT_DETAIL)) return getResult4Detail(sh);
 		return null;
 	}
-
+	
 	/**
 	 * 返回前端页面检索所需的字段
 	 * @param sh
@@ -1249,7 +1555,7 @@ public class SearchBuilder {
 		JSONObject obj=new JSONObject();
 		obj.put(Mapper.FieldArticle.ID, map.get(Mapper.FieldArticle.ID));
 		obj.put(Mapper.FieldArticle.LANGUAGE_CODE, map.get(Mapper.FieldArticle.LANGUAGE_CODE));
-
+		
 		//*************************titleSrc**************************
 		HighlightField titleSrcHigh=fieldMap.get(Mapper.FieldArticle.TITLE_SRC);
 		String titleSrc="";
@@ -1269,7 +1575,7 @@ public class SearchBuilder {
 		}
 		obj.put(Mapper.FieldArticle.TITLE_SRC, titleSrc);
 		//*************************titleSrc**************************
-
+		
 		HighlightField titleEn=fieldMap.get(Mapper.FieldArticle.TITLE_EN);
 		if(titleEn==null){
 			Object o=map.get(Mapper.FieldArticle.TITLE_EN);
@@ -1298,7 +1604,7 @@ public class SearchBuilder {
 			titleZh=CharUtil.removeSpaceInChinese(titleZh);
 		}
 		obj.put(Mapper.FieldArticle.TITLE_ZH, titleZh);
-
+		
 		HighlightField absZhHigh=fieldMap.get(Mapper.FieldArticle.ABSTRACT_ZH);
 		String absZh="";
 		if(absZhHigh==null){
@@ -1320,7 +1626,7 @@ public class SearchBuilder {
 			}
 //			obj.put(Mapper.FieldArticle.ABSTRACT_ZH, absZhHigh.fragments()[0].string());
 		}
-
+		
 		/**
 		 * 临时处理摘要，现在应该已经处理完了
 		 */
@@ -1331,9 +1637,9 @@ public class SearchBuilder {
 //		{
 //			absZh =((String)map.get(Mapper.FieldArticle.TEXT_ZH)).substring(0,50).replaceAll("<[^>]*>", " ").trim();
 //		}
-
+		
 		obj.put(Mapper.FieldArticle.ABSTRACT_ZH, absZh);
-
+		
 		HighlightField absEn=fieldMap.get(Mapper.FieldArticle.ABSTRACT_EN);
 		if(absEn==null){
 			String absEnStr = (String)map.get(Mapper.FieldArticle.ABSTRACT_EN);
@@ -1372,8 +1678,8 @@ public class SearchBuilder {
 		obj.put(Mapper.FieldArticle.DOC_LENGTH, map.get(Mapper.FieldArticle.DOC_LENGTH));
 		obj.put(Mapper.FieldArticle.URL, map.get(Mapper.FieldArticle.URL));
 		*/
-
-
+		
+		
 		obj.put(Mapper.FieldArticle.SENTIMENT_ID, map.get(Mapper.FieldArticle.SENTIMENT_ID));
 		obj.put(Mapper.FieldArticle.SENTIMENT_NAME, map.get(Mapper.FieldArticle.SENTIMENT_NAME));
 		if(((String)map.get(Mapper.FieldArticle.LANGUAGE_TNAME)).equalsIgnoreCase("英文")
@@ -1387,7 +1693,7 @@ public class SearchBuilder {
 		{
 			obj.put(Mapper.FieldArticle.LANGUAGE_TNAME, map.get(Mapper.FieldArticle.LANGUAGE_TNAME));
 		}
-
+		
 //		obj.put(Mapper.FieldArticle.LANGUAGE_TYPE, map.get(Mapper.FieldArticle.LANGUAGE_TYPE));
 		obj.put(Mapper.FieldArticle.LANGUAGE_CODE, map.get(Mapper.FieldArticle.LANGUAGE_CODE));
 		obj.put(Mapper.FieldArticle.KEYWORDS_EN, map.get(Mapper.FieldArticle.KEYWORDS_EN));
@@ -1397,9 +1703,9 @@ public class SearchBuilder {
 //		obj.put(Mapper.FieldArticle.REGION_ID, map.get(Mapper.FieldArticle.REGION_ID));
 //		obj.put(Mapper.FieldArticle.REGION_NAME, map.get(Mapper.FieldArticle.REGION_NAME));
 //		obj.put(Mapper.FieldArticle.COUNTRY_ID, map.get(Mapper.FieldArticle.COUNTRY_ID));
-
-
-
+		
+		
+		
 		obj.put(Mapper.FieldArticle.COUNTRY_NAME_ZH, map.get(Mapper.FieldArticle.COUNTRY_NAME_ZH));
 		obj.put(Mapper.FieldArticle.COUNTRY_NAME_EN, map.get(Mapper.FieldArticle.COUNTRY_NAME_EN));
 		if((map.get(Mapper.FieldArticle.COUNTRY_NAME_ZH)==null) && (map.get(Mapper.FieldArticle.COUNTRY_NAME_EN)!=null))
@@ -1415,18 +1721,18 @@ public class SearchBuilder {
 			obj.put(Mapper.FieldArticle.COUNTRY_NAME_ZH, "other");
 			obj.put(Mapper.FieldArticle.COUNTRY_NAME_EN, "other");
 		}
-
+		
 		obj.put(Mapper.FieldArticle.PROVINCE_NAME_ZH, map.get(Mapper.FieldArticle.PROVINCE_NAME_ZH));
 		obj.put(Mapper.FieldArticle.PROVINCE_NAME_EN, map.get(Mapper.FieldArticle.PROVINCE_NAME_EN));
 		obj.put(Mapper.FieldArticle.DISTRICT_NAME_ZH, map.get(Mapper.FieldArticle.DISTRICT_NAME_ZH));
 		obj.put(Mapper.FieldArticle.DISTRICT_NAME_EN, map.get(Mapper.FieldArticle.DISTRICT_NAME_EN));
-
+		
 		obj.put(Mapper.FieldArticle.PUBDATE, map.get(Mapper.FieldArticle.PUBDATE));
 		obj.put(Mapper.FieldArticle.CREATE_TIME, map.get(Mapper.FieldArticle.CREATE_TIME));
 		obj.put(Mapper.FieldArticle.UPDATE_TIME, map.get(Mapper.FieldArticle.UPDATE_TIME));
 		//obj.put(Mapper.FieldArticle.AUTHOR, map.get(Mapper.FieldArticle.AUTHOR));
 		obj.put(Mapper.FieldArticle.IS_ORIGINAL, map.get(Mapper.FieldArticle.IS_ORIGINAL));
-
+		
 //		obj.put(Mapper.FieldArticle.MEDIA_ID, map.get(Mapper.FieldArticle.MEDIA_ID));
 		obj.put(Mapper.FieldArticle.MEDIA_NAME_ZH, map.get(Mapper.FieldArticle.MEDIA_NAME_ZH));
 		obj.put(Mapper.FieldArticle.MEDIA_NAME_EN, map.get(Mapper.FieldArticle.MEDIA_NAME_EN));
@@ -1438,22 +1744,22 @@ public class SearchBuilder {
 //		obj.put(Mapper.FieldArticle.LEVEL_NAME, map.get(Mapper.FieldArticle.LEVEL_NAME));
 		obj.put(Mapper.FieldArticle.DOC_LENGTH, map.get(Mapper.FieldArticle.DOC_LENGTH));
 		obj.put(Mapper.FieldArticle.URL, map.get(Mapper.FieldArticle.URL));
-
+		
 		obj.put(Mapper.FieldArticle.TRANSFER, map.get(Mapper.FieldArticle.TRANSFER));
 		obj.put(Mapper.FieldArticle.SIMILARITY_ID, map.get(Mapper.FieldArticle.SIMILARITY_ID));
 		obj.put(Mapper.FieldArticle.TRANSFROMM, map.get(Mapper.FieldArticle.TRANSFROMM));
 		obj.put(Mapper.FieldArticle.ISPICTURE, map.get(Mapper.FieldArticle.ISPICTURE));
 		obj.put(Mapper.FieldArticle.PV, map.get(Mapper.FieldArticle.PV));
 		obj.put(Mapper.FieldArticle.ISHOME, map.get(Mapper.FieldArticle.ISHOME));
-
+		
 		obj.put(Mapper.FieldArticle.PUBDATE_SORT, map.get(Mapper.FieldArticle.PUBDATE_SORT));
 		obj.put(Mapper.FieldArticle.IS_SENSITIVE, map.get(Mapper.FieldArticle.IS_SENSITIVE));
-
+		
 		return obj;
 	}
-
+	
 	private JSONObject getResult4Analysis(SearchHit sh){
-
+		
 		Map<String, Object> map=sh.getSource();
 		JSONObject obj=new JSONObject();
 		obj.put(Mapper.FieldArticle.ID, map.get(Mapper.FieldArticle.ID));
@@ -1477,7 +1783,7 @@ public class SearchBuilder {
 			obj.put(Mapper.FieldArticle.LANGUAGE_TNAME, map.get(Mapper.FieldArticle.LANGUAGE_TNAME));
 		}
 
-
+		
 //		obj.put(Mapper.FieldArticle.LANGUAGE_TYPE, map.get(Mapper.FieldArticle.LANGUAGE_TYPE));
 		obj.put(Mapper.FieldArticle.LANGUAGE_CODE, map.get(Mapper.FieldArticle.LANGUAGE_CODE));
 		obj.put(Mapper.FieldArticle.KEYWORDS_EN, map.get(Mapper.FieldArticle.KEYWORDS_EN));
@@ -1502,23 +1808,23 @@ public class SearchBuilder {
 			obj.put(Mapper.FieldArticle.COUNTRY_NAME_ZH, "other");
 			obj.put(Mapper.FieldArticle.COUNTRY_NAME_EN, "other");
 		}
-
+		
 		obj.put(Mapper.FieldArticle.PROVINCE_NAME_ZH, map.get(Mapper.FieldArticle.PROVINCE_NAME_ZH));
 		obj.put(Mapper.FieldArticle.PROVINCE_NAME_EN, map.get(Mapper.FieldArticle.PROVINCE_NAME_EN));
 		obj.put(Mapper.FieldArticle.DISTRICT_NAME_ZH, map.get(Mapper.FieldArticle.DISTRICT_NAME_ZH));
-		obj.put(Mapper.FieldArticle.DISTRICT_NAME_EN, map.get(Mapper.FieldArticle.DISTRICT_NAME_EN));
-
+		obj.put(Mapper.FieldArticle.DISTRICT_NAME_EN, map.get(Mapper.FieldArticle.DISTRICT_NAME_EN));		
+		
 		obj.put(Mapper.FieldArticle.PUBDATE, map.get(Mapper.FieldArticle.PUBDATE));
 		obj.put(Mapper.FieldArticle.CREATE_TIME, map.get(Mapper.FieldArticle.CREATE_TIME));
 		obj.put(Mapper.FieldArticle.UPDATE_TIME, map.get(Mapper.FieldArticle.UPDATE_TIME));
 		//obj.put(Mapper.FieldArticle.AUTHOR, map.get(Mapper.FieldArticle.AUTHOR));
 		obj.put(Mapper.FieldArticle.IS_ORIGINAL, map.get(Mapper.FieldArticle.IS_ORIGINAL));
-
+		
 //		obj.put(Mapper.FieldArticle.MEDIA_ID, map.get(Mapper.FieldArticle.MEDIA_ID));
 		obj.put(Mapper.FieldArticle.MEDIA_NAME_ZH, map.get(Mapper.FieldArticle.MEDIA_NAME_ZH));
 		obj.put(Mapper.FieldArticle.MEDIA_NAME_EN, map.get(Mapper.FieldArticle.MEDIA_NAME_EN));
 		obj.put(Mapper.FieldArticle.MEDIA_NAME_SRC, map.get(Mapper.FieldArticle.MEDIA_NAME_SRC));
-
+		
 		obj.put(Mapper.FieldArticle.MEDIA_TYPE, map.get(Mapper.FieldArticle.MEDIA_TYPE));
 		obj.put(Mapper.FieldArticle.MEDIA_TNAME, map.get(Mapper.FieldArticle.MEDIA_TNAME));
 		obj.put(Mapper.FieldArticle.MEDIA_LEVEL, map.get(Mapper.FieldArticle.MEDIA_LEVEL));
@@ -1526,22 +1832,22 @@ public class SearchBuilder {
 //		obj.put(Mapper.FieldArticle.LEVEL_NAME, map.get(Mapper.FieldArticle.LEVEL_NAME));
 		obj.put(Mapper.FieldArticle.DOC_LENGTH, map.get(Mapper.FieldArticle.DOC_LENGTH));
 		obj.put(Mapper.FieldArticle.URL, map.get(Mapper.FieldArticle.URL));
-
-
+		
+		
 		obj.put(Mapper.FieldArticle.TRANSFER, map.get(Mapper.FieldArticle.TRANSFER));
 		obj.put(Mapper.FieldArticle.SIMILARITY_ID, map.get(Mapper.FieldArticle.SIMILARITY_ID));
 		obj.put(Mapper.FieldArticle.TRANSFROMM, map.get(Mapper.FieldArticle.TRANSFROMM));
 		obj.put(Mapper.FieldArticle.ISPICTURE, map.get(Mapper.FieldArticle.ISPICTURE));
 		obj.put(Mapper.FieldArticle.PV, map.get(Mapper.FieldArticle.PV));
 		obj.put(Mapper.FieldArticle.ISHOME, map.get(Mapper.FieldArticle.ISHOME));
-
+		
 		obj.put(Mapper.FieldArticle.COME_FROM, map.get(Mapper.FieldArticle.COME_FROM));
 		obj.put(Mapper.FieldArticle.IS_SENSITIVE, map.get(Mapper.FieldArticle.IS_SENSITIVE));
-
+		
 		return obj;
 	}
-
-
+	
+	
 	private JSONObject getResult4Analysis_bak(SearchHit sh){
 		Map<String, Object> map=sh.getSource();
 		JSONObject obj=new JSONObject();
@@ -1560,7 +1866,7 @@ public class SearchBuilder {
 		}
 		titleZh=CharUtil.removeSpaceInChinese(titleZh);
 		obj.put(Mapper.FieldArticle.TITLE_ZH, titleZh);
-
+		
 		String absEnStr = (String)map.get(Mapper.FieldArticle.ABSTRACT_EN);
 		if(absEnStr != null)
 		{
@@ -1580,8 +1886,8 @@ public class SearchBuilder {
 				.replaceAll("<\\s*br\\s*/\\s*>", " ")
 				.replaceAll("。。。。。。", " ")
 				.replaceAll("<[^>]*>", " ").trim();
-
-
+		
+		
 		/**
 		 * 临时加的，现在应该不用了
 		 */
@@ -1593,8 +1899,8 @@ public class SearchBuilder {
 //			absZh =((String)map.get(Mapper.FieldArticle.TEXT_ZH)).substring(0,50).replaceAll("<[^>]*>", " ").trim();
 //		}
 		obj.put(Mapper.FieldArticle.ABSTRACT_ZH, absZh);
-
-
+		
+		
 		obj.put(Mapper.FieldArticle.SENTIMENT_ID, map.get(Mapper.FieldArticle.SENTIMENT_ID));
 		obj.put(Mapper.FieldArticle.SENTIMENT_NAME, map.get(Mapper.FieldArticle.SENTIMENT_NAME));
 		obj.put(Mapper.FieldArticle.LANGUAGE_TNAME, map.get(Mapper.FieldArticle.LANGUAGE_TNAME));
@@ -1609,7 +1915,7 @@ public class SearchBuilder {
 		{
 			obj.put(Mapper.FieldArticle.LANGUAGE_TNAME, map.get(Mapper.FieldArticle.LANGUAGE_TNAME));
 		}
-
+		
 //		obj.put(Mapper.FieldArticle.LANGUAGE_TYPE, map.get(Mapper.FieldArticle.LANGUAGE_TYPE));
 		obj.put(Mapper.FieldArticle.LANGUAGE_CODE, map.get(Mapper.FieldArticle.LANGUAGE_CODE));
 		obj.put(Mapper.FieldArticle.KEYWORDS_EN, map.get(Mapper.FieldArticle.KEYWORDS_EN));
@@ -1633,23 +1939,23 @@ public class SearchBuilder {
 		{
 			obj.put(Mapper.FieldArticle.COUNTRY_NAME_ZH, "other");
 			obj.put(Mapper.FieldArticle.COUNTRY_NAME_EN, "other");
-		}
+		}		
 		obj.put(Mapper.FieldArticle.PROVINCE_NAME_ZH, map.get(Mapper.FieldArticle.PROVINCE_NAME_ZH));
 		obj.put(Mapper.FieldArticle.PROVINCE_NAME_EN, map.get(Mapper.FieldArticle.PROVINCE_NAME_EN));
 		obj.put(Mapper.FieldArticle.DISTRICT_NAME_ZH, map.get(Mapper.FieldArticle.DISTRICT_NAME_ZH));
-		obj.put(Mapper.FieldArticle.DISTRICT_NAME_EN, map.get(Mapper.FieldArticle.DISTRICT_NAME_EN));
-
+		obj.put(Mapper.FieldArticle.DISTRICT_NAME_EN, map.get(Mapper.FieldArticle.DISTRICT_NAME_EN));		
+		
 		obj.put(Mapper.FieldArticle.PUBDATE, map.get(Mapper.FieldArticle.PUBDATE));
 		obj.put(Mapper.FieldArticle.CREATE_TIME, map.get(Mapper.FieldArticle.CREATE_TIME));
 		obj.put(Mapper.FieldArticle.UPDATE_TIME, map.get(Mapper.FieldArticle.UPDATE_TIME));
 		//obj.put(Mapper.FieldArticle.AUTHOR, map.get(Mapper.FieldArticle.AUTHOR));
 		obj.put(Mapper.FieldArticle.IS_ORIGINAL, map.get(Mapper.FieldArticle.IS_ORIGINAL));
-
+		
 //		obj.put(Mapper.FieldArticle.MEDIA_ID, map.get(Mapper.FieldArticle.MEDIA_ID));
 		obj.put(Mapper.FieldArticle.MEDIA_NAME_ZH, map.get(Mapper.FieldArticle.MEDIA_NAME_ZH));
 		obj.put(Mapper.FieldArticle.MEDIA_NAME_EN, map.get(Mapper.FieldArticle.MEDIA_NAME_EN));
 		obj.put(Mapper.FieldArticle.MEDIA_NAME_SRC, map.get(Mapper.FieldArticle.MEDIA_NAME_SRC));
-
+		
 		obj.put(Mapper.FieldArticle.MEDIA_TYPE, map.get(Mapper.FieldArticle.MEDIA_TYPE));
 		obj.put(Mapper.FieldArticle.MEDIA_TNAME, map.get(Mapper.FieldArticle.MEDIA_TNAME));
 		obj.put(Mapper.FieldArticle.MEDIA_LEVEL, map.get(Mapper.FieldArticle.MEDIA_LEVEL));
@@ -1657,18 +1963,18 @@ public class SearchBuilder {
 //		obj.put(Mapper.FieldArticle.LEVEL_NAME, map.get(Mapper.FieldArticle.LEVEL_NAME));
 		obj.put(Mapper.FieldArticle.DOC_LENGTH, map.get(Mapper.FieldArticle.DOC_LENGTH));
 		obj.put(Mapper.FieldArticle.URL, map.get(Mapper.FieldArticle.URL));
-
-
+		
+		
 		obj.put(Mapper.FieldArticle.TRANSFER, map.get(Mapper.FieldArticle.TRANSFER));
 		obj.put(Mapper.FieldArticle.SIMILARITY_ID, map.get(Mapper.FieldArticle.SIMILARITY_ID));
 		obj.put(Mapper.FieldArticle.TRANSFROMM, map.get(Mapper.FieldArticle.TRANSFROMM));
 		obj.put(Mapper.FieldArticle.ISPICTURE, map.get(Mapper.FieldArticle.ISPICTURE));
 		obj.put(Mapper.FieldArticle.PV, map.get(Mapper.FieldArticle.PV));
 		obj.put(Mapper.FieldArticle.ISHOME, map.get(Mapper.FieldArticle.ISHOME));
-
+		
 		return obj;
 	}
-
+	
 	private JSONObject getResult4Detail(SearchHit sh){
 		Map<String, Object> map=sh.getSource();
 		JSONObject obj=new JSONObject();
@@ -1682,7 +1988,7 @@ public class SearchBuilder {
 		}
 		titleZh=CharUtil.removeSpaceInChinese(titleZh);
 		obj.put(Mapper.FieldArticle.TITLE_ZH, titleZh);
-
+		
 		String absEnStr = (String)map.get(Mapper.FieldArticle.ABSTRACT_EN);
 		if(absEnStr != null)
 		{
@@ -1718,7 +2024,7 @@ public class SearchBuilder {
 		{
 			obj.put(Mapper.FieldArticle.LANGUAGE_TNAME, map.get(Mapper.FieldArticle.LANGUAGE_TNAME));
 		}
-
+		
 //		obj.put(Mapper.FieldArticle.LANGUAGE_TYPE, map.get(Mapper.FieldArticle.LANGUAGE_TYPE));
 		obj.put(Mapper.FieldArticle.LANGUAGE_CODE, map.get(Mapper.FieldArticle.LANGUAGE_CODE));
 		obj.put(Mapper.FieldArticle.KEYWORDS_EN, map.get(Mapper.FieldArticle.KEYWORDS_EN));
@@ -1730,7 +2036,7 @@ public class SearchBuilder {
 //		obj.put(Mapper.FieldArticle.COUNTRY_ID, map.get(Mapper.FieldArticle.COUNTRY_ID));
 		obj.put(Mapper.FieldArticle.COUNTRY_NAME_ZH, map.get(Mapper.FieldArticle.COUNTRY_NAME_ZH));
 		obj.put(Mapper.FieldArticle.COUNTRY_NAME_EN, map.get(Mapper.FieldArticle.COUNTRY_NAME_EN));
-
+		
 		if((map.get(Mapper.FieldArticle.COUNTRY_NAME_ZH)==null) && (map.get(Mapper.FieldArticle.COUNTRY_NAME_EN)!=null))
 		{
 			obj.put(Mapper.FieldArticle.COUNTRY_NAME_ZH, Mapper.FieldArticle.COUNTRY_NAME_EN);
@@ -1743,24 +2049,24 @@ public class SearchBuilder {
 		{
 			obj.put(Mapper.FieldArticle.COUNTRY_NAME_ZH, "other");
 			obj.put(Mapper.FieldArticle.COUNTRY_NAME_EN, "other");
-		}
-
+		}		
+		
 		obj.put(Mapper.FieldArticle.PROVINCE_NAME_ZH, map.get(Mapper.FieldArticle.PROVINCE_NAME_ZH));
 		obj.put(Mapper.FieldArticle.PROVINCE_NAME_EN, map.get(Mapper.FieldArticle.PROVINCE_NAME_EN));
 		obj.put(Mapper.FieldArticle.DISTRICT_NAME_ZH, map.get(Mapper.FieldArticle.DISTRICT_NAME_ZH));
 		obj.put(Mapper.FieldArticle.DISTRICT_NAME_EN, map.get(Mapper.FieldArticle.DISTRICT_NAME_EN));
-
+		
 		obj.put(Mapper.FieldArticle.PUBDATE, map.get(Mapper.FieldArticle.PUBDATE));
 		obj.put(Mapper.FieldArticle.CREATE_TIME, map.get(Mapper.FieldArticle.CREATE_TIME));
 		obj.put(Mapper.FieldArticle.UPDATE_TIME, map.get(Mapper.FieldArticle.UPDATE_TIME));
 		//obj.put(Mapper.FieldArticle.AUTHOR, map.get(Mapper.FieldArticle.AUTHOR));
 		obj.put(Mapper.FieldArticle.IS_ORIGINAL, map.get(Mapper.FieldArticle.IS_ORIGINAL));
-
+		
 //		obj.put(Mapper.FieldArticle.MEDIA_ID, map.get(Mapper.FieldArticle.MEDIA_ID));
 		obj.put(Mapper.FieldArticle.MEDIA_NAME_ZH, map.get(Mapper.FieldArticle.MEDIA_NAME_ZH));
 		obj.put(Mapper.FieldArticle.MEDIA_NAME_EN, map.get(Mapper.FieldArticle.MEDIA_NAME_EN));
 		obj.put(Mapper.FieldArticle.MEDIA_NAME_SRC, map.get(Mapper.FieldArticle.MEDIA_NAME_SRC));
-
+		
 		obj.put(Mapper.FieldArticle.MEDIA_TYPE, map.get(Mapper.FieldArticle.MEDIA_TYPE));
 		obj.put(Mapper.FieldArticle.MEDIA_TNAME, map.get(Mapper.FieldArticle.MEDIA_TNAME));
 		obj.put(Mapper.FieldArticle.MEDIA_LEVEL, map.get(Mapper.FieldArticle.MEDIA_LEVEL));
@@ -1768,32 +2074,32 @@ public class SearchBuilder {
 //		obj.put(Mapper.FieldArticle.LEVEL_NAME, map.get(Mapper.FieldArticle.LEVEL_NAME));
 		obj.put(Mapper.FieldArticle.DOC_LENGTH, map.get(Mapper.FieldArticle.DOC_LENGTH));
 		obj.put(Mapper.FieldArticle.URL, map.get(Mapper.FieldArticle.URL));
-
-
+		
+		
 		obj.put(Mapper.FieldArticle.TRANSFER, map.get(Mapper.FieldArticle.TRANSFER));
 		obj.put(Mapper.FieldArticle.SIMILARITY_ID, map.get(Mapper.FieldArticle.SIMILARITY_ID));
 		obj.put(Mapper.FieldArticle.TRANSFROMM, map.get(Mapper.FieldArticle.TRANSFROMM));
 		obj.put(Mapper.FieldArticle.ISPICTURE, map.get(Mapper.FieldArticle.ISPICTURE));
 		obj.put(Mapper.FieldArticle.PV, map.get(Mapper.FieldArticle.PV));
 		obj.put(Mapper.FieldArticle.ISHOME, map.get(Mapper.FieldArticle.ISHOME));
-
+		
 
 		obj.put(Mapper.FieldArticle.TEXT_SRC, map.get(Mapper.FieldArticle.TEXT_SRC));
 		obj.put(Mapper.FieldArticle.TEXT_ZH, map.get(Mapper.FieldArticle.TEXT_ZH));
 		obj.put(Mapper.FieldArticle.TEXT_EN, map.get(Mapper.FieldArticle.TEXT_EN));
 
 		obj.put(Mapper.FieldArticle.IS_SENSITIVE, map.get(Mapper.FieldArticle.IS_SENSITIVE));
-
-
+		
+		
 		return obj;
 	}
-
-
-
-
+	
+	
+	
+	
 	//排序
 	private SortBuilder getSort(JSONObject obj){
-		if(!obj.containsKey(Mapper.Sort.ORDER)) return SortBuilders.scoreSort();
+		if(!obj.containsKey(Mapper.Sort.ORDER)) return SortBuilders.scoreSort(); 
 		String orderStr=obj.getString(Mapper.Sort.ORDER);
 		if(orderStr==null || "".equals(orderStr)){
 			return SortBuilders.scoreSort();
@@ -1802,7 +2108,7 @@ public class SearchBuilder {
 //		return SortBuilders.scriptSort("new java.text.SimpleDateFormat('yyyy-MM-dd HH:mm:dd').format(new Date(doc['"+Mapper.FieldArticle.PUBDATE+"'].value))", "string").order(order);
 		return SortBuilders.fieldSort(obj.getString(Mapper.Sort.FIELD_NAME)).order(order);
 	}
-
+	
 	private void setSort(SearchRequestBuilder srb, JSONObject obj){
 		if(!obj.containsKey(Mapper.Sort.FIELD_NAME) || !obj.containsKey(Mapper.Sort.ORDER)) {
 			//默认相关度降序
@@ -1818,14 +2124,14 @@ public class SearchBuilder {
 			srb.addSort(SortBuilders.fieldSort(obj.getString(Mapper.Sort.FIELD_NAME)).order(order));
 		}
 	}
-
+	
 	private void defaultSort(SearchRequestBuilder srb, JSONObject obj){
 		srb.addSort(SortBuilders.fieldSort(Mapper.FieldArticle.PUBDATE_SORT).order(SortOrder.DESC));
 		srb.addSort(SortBuilders.fieldSort(Mapper.Sort.RELEVANCE).order(SortOrder.DESC));
 		srb.addSort(SortBuilders.fieldSort(Mapper.FieldArticle.MEDIA_LEVEL).order(SortOrder.ASC));
 		srb.addSort(SortBuilders.fieldSort(Mapper.FieldArticle.TRANSFER).order(SortOrder.DESC));
 	}
-
+	
 /*	private ChineseSorter getCustomSort(JSONObject obj){
 		if(!obj.containsKey(Mapper.Sort.ORDER)) return null;
 		String orderStr=obj.getString(Mapper.Sort.ORDER);
@@ -1836,7 +2142,7 @@ public class SearchBuilder {
 		if(!field.equalsIgnoreCase(Mapper.FieldArticle.NAME)) return null;
 		return new ChineseSorter(field, orderStr);
 	}*/
-
+	
 	public void close(){
 		try
 		{
@@ -1852,7 +2158,7 @@ public class SearchBuilder {
 		if(client!=null)
 			this.client.close();
 	}
-
+	
 	public boolean updateUnit(JSONObject jsonObject)
 	{
 		try
@@ -1862,7 +2168,7 @@ public class SearchBuilder {
 				builder=new IndexBuilder();
 			}
 			return builder.updateUnit(jsonObject.toString(), Configuration.INDEX_NAME, Configuration.INDEX_TYPE_ARTICLE, Mapper.FieldArticle.ID);
-
+			
 		}
 		catch(Exception e)
 		{
@@ -1870,7 +2176,7 @@ public class SearchBuilder {
 			return false;
 		}
 	}
-
+	
 	public boolean insertUnit(JSONObject jsonObject)
 	{
 		try
@@ -1880,7 +2186,7 @@ public class SearchBuilder {
 				builder=new IndexBuilder();
 			}
 			return builder.addUnit(jsonObject.toString(), Configuration.INDEX_NAME, Configuration.INDEX_TYPE_ARTICLE, Mapper.FieldArticle.ID);
-
+			
 		}
 		catch(Exception e)
 		{
@@ -1888,201 +2194,8 @@ public class SearchBuilder {
 			return false;
 		}
 	}
-
-	public SearchRequestBuilder buildQueryTotal(JSONObject obj)
-	{
-		String key = obj.getString("keyword");
-
-		if (!this.handledSensitiveWords)
-		{
-			int sensiResult = handleSensitiveWords(key);
-			if (sensiResult == 1)
-			{
-				return null;
-			}
-		}
-		this.handledSensitiveWords = false;
-
-		BoolQueryBuilder qb = QueryBuilders.boolQuery();
-
-		QueryBuilder initQb = QueryBuilders.queryStringQuery(key)
-				.field("titleSrc", Configuration.TITLE_SRC_WEIGHT)
-				.field("titleEn", Configuration.TITLE_WEIGHT)
-				.field("titleZh", Configuration.TITLE_WEIGHT)
-				.field("textSrc", Configuration.TEXT_WEIGHT)
-				.field("textEn", Configuration.TEXT_WEIGHT)
-				.field("textZh", Configuration.TEXT_WEIGHT);
-
-		QueryBuilder fsqb = initQb;
-
-		if (Configuration.SEARCH_TYPE == 0)
-		{
-			fsqb = QueryBuilders.functionScoreQuery(initQb)
-					.add(ScoreFunctionBuilders.linearDecayFunction("pubdate", Configuration.TIME_SCALE + "d").setDecay(Configuration.TIME_DECAY).setWeight(Configuration.TIME_SCALE_WEIGHT))
-					.add(ScoreFunctionBuilders.gaussDecayFunction("mediaLevel", Configuration.MEDIA_SCALE).setDecay(Configuration.MEDIA_DECAY).setWeight(Configuration.MEDIA_SCALE_WEIGHT))
-					.scoreMode(Configuration.SCORE_MODE);
-		}
-
-		if (Configuration.SEARCH_TYPE == 3)
-		{
-			fsqb = QueryBuilders.functionScoreQuery(initQb)
-					.add(ScoreFunctionBuilders.gaussDecayFunction("pubdate", "2016-08-11", Configuration.TIME_SCALE + "d").setDecay(Configuration.TIME_DECAY).setWeight(Configuration.TIME_SCALE_WEIGHT))
-					.add(ScoreFunctionBuilders.gaussDecayFunction("mediaLevel", Configuration.MEDIA_SCALE).setDecay(Configuration.MEDIA_DECAY).setWeight(Configuration.MEDIA_SCALE_WEIGHT))
-					.scoreMode(Configuration.SCORE_MODE);
-		}
-
-		if (Configuration.SEARCH_TYPE == 4)
-		{
-			fsqb = QueryBuilders.functionScoreQuery(initQb)
-					.add(ScoreFunctionBuilders.linearDecayFunction("pubdate", Configuration.TIME_SCALE + "d").setDecay(Configuration.TIME_DECAY).setWeight(Configuration.TIME_SCALE_WEIGHT))
-					.add(ScoreFunctionBuilders.gaussDecayFunction("mediaLevel", Integer.valueOf(1)).setDecay(Configuration.MEDIA_DECAY).setWeight(Configuration.MEDIA_SCALE_WEIGHT))
-					.scoreMode(Configuration.SCORE_MODE);
-		}
-
-		if (Configuration.SEARCH_TYPE == 5)
-		{
-			fsqb = QueryBuilders.functionScoreQuery(initQb)
-					.add(ScoreFunctionBuilders.gaussDecayFunction("pubdate", "2016-08-11", Configuration.TIME_SCALE + "d").setDecay(Configuration.TIME_DECAY).setWeight(Configuration.TIME_SCALE_WEIGHT))
-					.add(ScoreFunctionBuilders.gaussDecayFunction("mediaLevel", Integer.valueOf(Configuration.MEDIA_SCALE)).setDecay(Configuration.MEDIA_DECAY).setWeight(Configuration.MEDIA_SCALE_WEIGHT))
-					.scoreMode(Configuration.SCORE_MODE);
-		}
-
-		if (Configuration.SEARCH_TYPE == 6)
-		{
-			fsqb = QueryBuilders.functionScoreQuery(initQb)
-					.add(ScoreFunctionBuilders.linearDecayFunction("pubdate", Configuration.TIME_SCALE + "d").setDecay(Configuration.TIME_DECAY).setWeight(Configuration.TIME_SCALE_WEIGHT))
-					.scoreMode(Configuration.SCORE_MODE);
-		}
-
-		if (Configuration.SEARCH_TYPE == 7)
-		{
-			fsqb = QueryBuilders.functionScoreQuery(initQb)
-					.add(ScoreFunctionBuilders.gaussDecayFunction("pubdate", Configuration.TIME_SCALE + "d").setDecay(Configuration.TIME_DECAY).setWeight(Configuration.TIME_SCALE_WEIGHT))
-					.scoreMode(Configuration.SCORE_MODE);
-		}
-
-		if (Configuration.SEARCH_TYPE == 1)
-		{
-			String script2 = "exp(doc['pubTime'].value*" + Configuration.TIME_WEIGHT + ")";
-			String script3 = "doc['mediaLevel'].value *" + Configuration.MEDIA_WEIGHT;
-			fsqb = QueryBuilders.functionScoreQuery(initQb)
-					.add(ScoreFunctionBuilders.scriptFunction(script2))
-					.add(ScoreFunctionBuilders.scriptFunction(script3))
-					.scoreMode(Configuration.SCORE_MODE);
-		}
-
-		if (Configuration.SEARCH_TYPE == 8)
-		{
-			long currTime = System.currentTimeMillis() - 86400000L;
-
-			String script1 = "min(max(1,doc['pubTime'].value - " + currTime + ") ," + Configuration.TIME_TODAY_WEIGHT + ")";
-
-			String script2 = "exp(doc['pubTime'].value*" + Configuration.TIME_WEIGHT + ")";
-			String script3 = "doc['mediaLevel'].value *" + Configuration.MEDIA_WEIGHT;
-			fsqb = QueryBuilders.functionScoreQuery(initQb)
-					.add(ScoreFunctionBuilders.scriptFunction(script1))
-					.add(ScoreFunctionBuilders.scriptFunction(script2))
-					.add(ScoreFunctionBuilders.scriptFunction(script3))
-					.scoreMode(Configuration.SCORE_MODE);
-		}
-
-		if (Configuration.SEARCH_TYPE == 9)
-		{
-			long currTime = System.currentTimeMillis() - 86400000L;
-
-			String script1 = "min(max(1,doc['pubTime'].value - " + currTime + ") ," + Configuration.TIME_TODAY_WEIGHT + ")";
-
-			String script2 = "(doc['pubTime'].value*" + Configuration.TIME_WEIGHT + ")";
-			String script3 = "doc['mediaLevel'].value";
-			fsqb = QueryBuilders.functionScoreQuery(initQb)
-					.add(ScoreFunctionBuilders.scriptFunction(script1))
-					.add(ScoreFunctionBuilders.scriptFunction(script2))
-					.add(ScoreFunctionBuilders.scriptFunction(script3))
-					.scoreMode(Configuration.SCORE_MODE);
-		}
-
-		if (Configuration.SEARCH_TYPE == 10)
-		{
-			long currTime = System.currentTimeMillis() - 86400000L;
-
-			String script1 = "min(max(1,doc['pubTime'].value - " + currTime + ") ," + Configuration.TIME_TODAY_WEIGHT + ")";
-
-			String script2 = "(doc['pubTime'].value*" + Configuration.TIME_WEIGHT + ")";
-			String script3 = "doc['mediaLevel'].value";
-			fsqb = QueryBuilders.functionScoreQuery(initQb)
-					.add(ScoreFunctionBuilders.scriptFunction(script1))
-					.add(ScoreFunctionBuilders.scriptFunction(script3))
-					.scoreMode(Configuration.SCORE_MODE);
-		}
-
-		if (Configuration.SEARCH_TYPE == 11)
-		{
-			long currTime = System.currentTimeMillis() - 86400000L;
-
-			String script1 = "min(max(1,doc['pubTime'].value - " + currTime + ") ," + Configuration.TIME_TODAY_WEIGHT + ")";
-
-			String script2 = "(doc['pubTime'].value*" + Configuration.TIME_WEIGHT + ")";
-			String script3 = "doc['mediaLevel'].value*" + Configuration.MEDIA_WEIGHT;
-			fsqb = QueryBuilders.functionScoreQuery(initQb)
-					.add(ScoreFunctionBuilders.scriptFunction(script1))
-					.add(ScoreFunctionBuilders.scriptFunction(script3))
-					.scoreMode(Configuration.SCORE_MODE);
-		}
-
-		if (Configuration.SEARCH_TYPE == 12)
-		{
-			long currTime = System.currentTimeMillis() - 86400000L;
-
-			String script1 = "min(max(1,doc['pubTime'].value - " + currTime + ") ," + Configuration.TIME_TODAY_WEIGHT + ")";
-
-			String script2 = "exp((doc['pubTime'].value - " + Configuration.BASE_TIME + ") * " + Configuration.TIME_WEIGHT + ")";
-			String script3 = "doc['mediaLevel'].value";
-			fsqb = QueryBuilders.functionScoreQuery(initQb)
-					.add(ScoreFunctionBuilders.scriptFunction(script1))
-					.add(ScoreFunctionBuilders.scriptFunction(script2))
-					.add(ScoreFunctionBuilders.scriptFunction(script3))
-					.scoreMode(Configuration.SCORE_MODE);
-		}
-
-		FilteredQueryBuilder fqb = QueryBuilders.filteredQuery(fsqb, filterQuery(obj));
-		SearchRequestBuilder srb = this.client.prepareSearch(new String[] {
-				"news201601", "news201602", "news201603", "news201604", "news201605", "news201606",
-				"news201607", "news201508", "news201609", "news201610", "news201611", "news201612",
-				"news201501", "news201502", "news201503", "news201504", "news201505", "news201506",
-				"news201507", "news201508", "news201509", "news201510", "news201511", "news201512",
-				"news201401", "news201402", "news201403", "news201404", "news201405", "news201406",
-				"news201407", "news201408", "news201409", "news201410", "news201411", "news201412",
-				"news201301", "news201302", "news201303", "news201304", "news201305", "news201306",
-				"news201307", "news201308", "news201309", "news201310", "news201311", "news201312",
-				"news201201", "news201202", "news201203", "news201204", "news201205", "news201206",
-				"news201207", "news201208", "news201209", "news201210", "news201211", "news201212",
-				"news201101", "news201102", "news201103", "news201104", "news201105", "news201106",
-				"news201107", "news201108", "news201109", "news201110", "news201111", "news201112",
-				"news201001", "news201002", "news201003", "news201004", "news201005", "news201006",
-				"news201007", "news201008", "news201009", "news201010", "news201011", "news201012" });
-
-		srb.setQuery(fqb);
-		String type = obj.getString("type");
-		if ((type != null) && ("typeAll".equals(type)))
-			srb.setTypes(new String[] { Configuration.INDEX_TYPE_ARTICLE });
-		else {
-			srb.setTypes(new String[] { type });
-		}
-
-		boolean highlight = obj.getBoolean("highlight");
-		if (highlight) {
-			srb
-					.addHighlightedField("titleSrc")
-					.addHighlightedField("titleZh")
-					.addHighlightedField("titleEn")
-					.addHighlightedField("abstractEn")
-					.addHighlightedField("abstractZh", 1000);
-		}
-
-		return srb;
-	}
-
-
+	
+	
 	public boolean deleteUnit(JSONObject jsonObject)
 	{
 		try
@@ -2092,7 +2205,7 @@ public class SearchBuilder {
 				builder=new IndexBuilder();
 			}
 			return builder.deleteUnit(jsonObject.toString(), Configuration.INDEX_NAME, Configuration.INDEX_TYPE_ARTICLE, Mapper.FieldArticle.ID);
-
+			
 		}
 		catch(Exception e)
 		{
@@ -2100,7 +2213,7 @@ public class SearchBuilder {
 			return false;
 		}
 	}
-
+	
 	public static int addUnitBatch(String jsonUnitArray)
 	{
 		//根据日期来判断真正的indexName，对array进行分组
@@ -2108,7 +2221,7 @@ public class SearchBuilder {
 		int sum=0;
 		try {
 			JSONArray array=JSONArray.fromObject(jsonUnitArray);
-
+			
 			Map<String,JSONArray> hashJSONArray = new HashMap<String,JSONArray>();
 			for(int i=0; i<array.size(); i++){
 				obj=array.getJSONObject(i);
@@ -2124,11 +2237,11 @@ public class SearchBuilder {
 					hashJSONArray.put(yearMonth, nArray);
 				}
 			}
-
+			
 			//
 			IndexBuilder recentBuilder = new IndexBuilder(Configuration.CLUSTER_NAME,Configuration.INDEX_SERVER_ADDRESS);
 			IndexBuilder totalBuilder = new IndexBuilder(Configuration.TOTAL_CLUSTER_NAME,Configuration.TOTAL_INDEX_SERVER_ADDRESS);
-
+			
 			for(String yearMonth : hashJSONArray.keySet())
 			{
 				//写buck
@@ -2139,23 +2252,23 @@ public class SearchBuilder {
 				}
 				totalBuilder.addUnitBatch(hashJSONArray.get(yearMonth).toString(), "news" + yearMonth, Configuration.INDEX_TYPE_ARTICLE, Mapper.FieldArticle.ID);
 			}
-
+			
 			recentBuilder.close();
 			totalBuilder.close();
-
-
+			
+			
 		} catch (Exception e) {
 			logger.error(ExceptionUtil.getExceptionTrace(e));
 		}
 		return sum;
-
+		
 	}
-
-
+	
+	
 	class KeywordEn implements Comparable<KeywordEn>{
 		String name;
 		int count;
-
+		
 		public KeywordEn(String name, int count) {
 			this.name = name;
 			this.count = count;
