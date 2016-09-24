@@ -43,6 +43,7 @@ public class FileUtil {
         while ((line = bf.readLine()) != null) {
             sb.append(line).append("\n");
         }
+        bf.close();
         return sb.toString();
     }
 

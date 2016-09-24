@@ -73,7 +73,7 @@ public class NewsInsertServiceImpl
                 try {
                     JSONArray newsArray = new JSONArray(newsJsonStr);
                     for (Object jo : newsArray) {
-                        JSONObject newsJO = (JSONObject) jo;
+                        JSONObject newsJO = new JSONObject(jo) ;
                         add(countMap, insert(newsJO, isTest));
                     }
                 } catch (Exception e) {

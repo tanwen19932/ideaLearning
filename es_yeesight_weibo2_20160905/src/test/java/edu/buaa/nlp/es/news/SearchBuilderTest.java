@@ -1,7 +1,6 @@
 package edu.buaa.nlp.es.news;
 
 import edu.buaa.nlp.es.client.ESClient;
-import edu.buaa.nlp.es.news.SearchBuilder;
 import junit.framework.TestCase;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.search.SearchResponse;
@@ -24,9 +23,11 @@ public class SearchBuilderTest
         //String json = "{\"keyword\":\"(\\\"US navy\\\" and (\\\"technology\\\" or \\\"new\\\" or \\\"launch\\\" or \\\"order\\\" or \\\"finance\\\" or \\\"equipment\\\" or \\\"carrier\\\" or \\\"win\\\" or \\\"contract\\\" or \\\"invest\\\" or \\\"adopt\\\" or \\\"design\\\")) or \\\"littoral combatship\\\"\",\"order\":\"desc\",\"fieldName\":\"_score\",\"highlight\":false,\"resultType\":\"front\",\"pageNo\":\"1\",\"pageSize\":\"10\",\"similarityId\":\"\",\"isSensitive\":[0]}";
 
 
-        String json = "{\"keyword\":\"抗生素\"}";
+        String json = "{\"keyword\":\"(抗生素) and  (()or () and ())\"}";
+
         SearchBuilder searchBuilder = new SearchBuilder();
-        searchBuilder.crossSearch(json);
+        System.out.println(searchBuilder.initKeyword(json));
+        //searchBuilder.crossSearch(json);
         String a = "";
     }
 
@@ -48,5 +49,75 @@ public class SearchBuilderTest
             System.out.println(hit.getId());
             DeleteResponse deleteResponse = client.prepareDelete("news*", "article", hit.getId()).get();
         }
+    }
+
+    public void testInitSensitiveModels()
+            throws Exception {
+
+    }
+
+    public void testAddLeader()
+            throws Exception {
+
+    }
+
+    public void testAddSensiWords()
+            throws Exception {
+
+    }
+
+    public void testFilterSearch()
+            throws Exception {
+
+    }
+
+    public void testCrossSearch()
+            throws Exception {
+
+    }
+
+    public void testSpecialSearch()
+            throws Exception {
+
+    }
+
+    public void testInitAdvancedQuery()
+            throws Exception {
+
+    }
+
+    public void testInitKeyword()
+            throws Exception {
+
+    }
+
+    public void testClose()
+            throws Exception {
+
+    }
+
+    public void testUpdateUnit()
+            throws Exception {
+
+    }
+
+    public void testInsertUnit()
+            throws Exception {
+
+    }
+
+    public void testBuildQueryTotal()
+            throws Exception {
+
+    }
+
+    public void testDeleteUnit()
+            throws Exception {
+
+    }
+
+    public void testAddUnitBatch()
+            throws Exception {
+
     }
 }

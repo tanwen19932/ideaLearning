@@ -24,13 +24,14 @@ public class NewsFilterChain
 
     @Override
     public boolean filter(News param) {
+        boolean result = false;
         for (Filter<News> filter : filters) {
             if (filter.filter(param)) {
                 System.out.println("异常将被过滤+ " + filter.getClass().getSimpleName());
-                return true;
+                result = true;
             }
         }
-        return false;
+        return result;
     }
 
     public static boolean tryFilter(News news) {
