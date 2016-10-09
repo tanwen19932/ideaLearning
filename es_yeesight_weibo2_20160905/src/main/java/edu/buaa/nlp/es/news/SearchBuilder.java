@@ -22,6 +22,8 @@ import org.elasticsearch.index.query.FilteredQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.functionscore.ScoreFunctionBuilders;
+import org.elasticsearch.script.Script;
+import org.elasticsearch.script.ScriptService;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
@@ -35,6 +37,7 @@ import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.net.UnknownHostException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -57,6 +60,11 @@ public class SearchBuilder {
     private static Map<String, String> hashFieldKeywords = null;    //存储可用于域搜索的关键词
     private static Pattern patYinHao = Pattern.compile("(\"[^\"]+\")");
     private static String yinhaoTag = "YH_"; //引号标签
+    private static String emptyResponse = "\"{\\\"resultList\\\":[],\\\"resultCount\\\":0}\";";
+    String [] indexes = {"news201501", "news201502", "news201503", "news201504", "news201505", "news201506",
+            "news201507", "news201508", "news201509", "news201510", "news201511", "news201512",
+            "news201601", "news201602", "news201603", "news201604", "news201605", "news201606",
+            "news201607", "news201508", "news201609", "news201610", "news201611", "news201612"};
 
     static {
         pingyinTool = new PingyinTool();
@@ -539,7 +547,26 @@ public class SearchBuilder {
             String script2 = "exp((doc['pubTime'].value - " + Configuration.BASE_TIME + ") * " + Configuration.TIME_WEIGHT + ")";
             String script3 = "doc['mediaLevel'].value";
             fsqb = QueryBuilders.functionScoreQuery(initQb)
+            /// TODO: 2016/9/28 取消注释 
                     .add(ScoreFunctionBuilders.scriptFunction(script1))
+                    .add(ScoreFunctionBuilders.scriptFunction(script2))
+                    .add(ScoreFunctionBuilders.scriptFunction(script3))
+                    .scoreMode(Configuration.SCORE_MODE)
+            ;
+        }
+        if (Configuration.SEARCH_TYPE == 13) {
+            long currTime = System.currentTimeMillis() - 86400000;
+
+            //String script1 = "1 + floor(doc['pubTime'].value/" + currTime + ") *" + Configuration.TIME_SCALE_WEIGHT + ""; //1-2天内的权重偏置
+           Map<String,Object> params = new HashMap<>();
+            params.put("currTime",currTime);
+            String script1 = "min(max(1,doc['pubTime'].value - currTime ) ," + Configuration.TIME_TODAY_WEIGHT + ")"; //1-2天内的权重偏置
+            Script script = new Script (  script1 , ScriptService.ScriptType.INLINE, "groovy", params);
+            String script2 = "exp((doc['pubTime'].value - " + Configuration.BASE_TIME + ") * " + Configuration.TIME_WEIGHT + ")";
+
+            String script3 = "doc['mediaLevel'].value";
+            fsqb = QueryBuilders.functionScoreQuery(initQb)
+                    .add(ScoreFunctionBuilders.scriptFunction(script))
                     .add(ScoreFunctionBuilders.scriptFunction(script2))
                     .add(ScoreFunctionBuilders.scriptFunction(script3))
                     .scoreMode(Configuration.SCORE_MODE)
@@ -556,11 +583,7 @@ public class SearchBuilder {
 		//*/
         //		qb.must(initQb);
         FilteredQueryBuilder fqb = QueryBuilders.filteredQuery(fsqb, filterQuery(obj));
-        SearchRequestBuilder srb = client.prepareSearch("news201501", "news201502", "news201503", "news201504", "news201505", "news201506",
-                "news201507", "news201508", "news201509", "news201510", "news201511", "news201512",
-                "news201601", "news201602", "news201603", "news201604", "news201605", "news201606",
-                "news201607", "news201508", "news201609", "news201610", "news201611", "news201612"
-        );//Configuration.INDEX_NAME);	//
+        SearchRequestBuilder srb = client.prepareSearch();//indexes);	//
         srb.setQuery(fqb);
         String type = obj.getString(Mapper.Query.INDEX_TYPE);
         if (type != null && Constant.QUERY_INDEX_TYPE_ALL.equals(type)) {
@@ -801,6 +824,24 @@ public class SearchBuilder {
                     .scoreMode(Configuration.SCORE_MODE)
             ;
         }
+        if (Configuration.SEARCH_TYPE == 13) {
+            long currTime = System.currentTimeMillis() - 86400000;
+
+            //String script1 = "1 + floor(doc['pubTime'].value/" + currTime + ") *" + Configuration.TIME_SCALE_WEIGHT + ""; //1-2天内的权重偏置
+            Map<String,Object> params = new HashMap<>();
+            params.put("currTime",currTime);
+            String script1 = "min(max(1,doc['pubTime'].value - currTime ) ," + Configuration.TIME_TODAY_WEIGHT + ")"; //1-2天内的权重偏置
+            Script script = new Script (  script1 , ScriptService.ScriptType.INLINE, "groovy", params);
+            String script2 = "exp((doc['pubTime'].value - " + Configuration.BASE_TIME + ") * " + Configuration.TIME_WEIGHT + ")";
+
+            String script3 = "doc['mediaLevel'].value";
+            fsqb = QueryBuilders.functionScoreQuery(initQb)
+                    .add(ScoreFunctionBuilders.scriptFunction(script))
+                    .add(ScoreFunctionBuilders.scriptFunction(script2))
+                    .add(ScoreFunctionBuilders.scriptFunction(script3))
+                    .scoreMode(Configuration.SCORE_MODE)
+            ;
+        }
         //*/
 
 		/*方案二：写插件*/
@@ -827,7 +868,7 @@ public class SearchBuilder {
                 "news201107", "news201108", "news201109", "news201110", "news201111", "news201112",
                 "news201001", "news201002", "news201003", "news201004", "news201005", "news201006",
                 "news201007", "news201008", "news201009", "news201010", "news201011", "news201012"
-        );//Configuration.INDEX_NAME);	//
+        );
         srb.setQuery(fqb);
         String type = obj.getString(Mapper.Query.INDEX_TYPE);
         if (type != null && Constant.QUERY_INDEX_TYPE_ALL.equals(type)) {
@@ -873,7 +914,7 @@ public class SearchBuilder {
             obj = initAdvancedQuery(jsonQuery);
         } catch (QueryFormatException e) {
             logger.error(ExceptionUtil.getExceptionTrace(e));
-            return null;
+            return "{\"resultList\":[],\"resultCount\":0}";
         }
 
         try {
@@ -884,7 +925,12 @@ public class SearchBuilder {
                 .setMinScore(Configuration.QUERY_RESULT_MIN_SCORE) //最低分值
                 .setFrom((obj.getInt(Mapper.Query.PAGE_NO) - 1) * obj.getInt(Mapper.Query.PAGE_SIZE))
                 .setSize(obj.getInt(Mapper.Query.PAGE_SIZE));
-            if(!ValidateQuery.check(Configuration.INDEX_NAME,Configuration.INDEX_TYPE_ARTICLE,srb.toString())){
+            //if(!ValidateQuery.check(indexes,Configuration.INDEX_TYPE_ARTICLE,srb.toString())){
+            //    logger.info("[es-query]-" + srb.toString());
+            //    return  null;
+            //};
+            if(!ValidateQuery.check(srb.toString())){
+                logger.info("[es-query]-" + srb.toString());
                 return  null;
             };
             SearchResponse sr = srb.execute().actionGet();
@@ -939,6 +985,9 @@ public class SearchBuilder {
         if (goal > shards) {
             goal = (int) Math.ceil(1.0 * goal / shards);
         }
+        if (!ValidateQuery.check( srb.toString())) {
+            return "";
+        }
         SearchResponse sr1 = srb
                 .addSort(getSort(obj))
                 //				.setMinScore(Mapper.QUERY_RESULT_MIN_SCORE) //最低分值
@@ -973,7 +1022,7 @@ public class SearchBuilder {
     //状态为green的shard数量
     private int greenShards(JSONObject obj) {
         ClusterHealthResponse chr = client.admin().cluster()
-                .prepareHealth(Configuration.INDEX_NAME)
+                .prepareHealth(indexes)
                 .setWaitForGreenStatus()
                 .get();
         ClusterHealthStatus status = chr.getStatus();
@@ -2029,7 +2078,8 @@ public class SearchBuilder {
             if (builder == null) {
                 builder = new IndexBuilder();
             }
-            return builder.updateUnit(jsonObject.toString(), Configuration.INDEX_NAME, Configuration.INDEX_TYPE_ARTICLE, Mapper.FieldArticle.ID);
+            String index = "news"+ new SimpleDateFormat("yyyyMM").format(new Date(jsonObject.getLong("pubtime")));
+            return builder.updateUnit(jsonObject.toString(), index, Configuration.INDEX_TYPE_ARTICLE, Mapper.FieldArticle.ID);
 
         } catch (Exception e) {
             logger.error(ExceptionUtil.getExceptionTrace(e));
@@ -2042,7 +2092,8 @@ public class SearchBuilder {
             if (builder == null) {
                 builder = new IndexBuilder();
             }
-            return builder.addUnit(jsonObject.toString(), Configuration.INDEX_NAME, Configuration.INDEX_TYPE_ARTICLE, Mapper.FieldArticle.ID);
+           String index = "news"+ new SimpleDateFormat("yyyyMM").format(new Date(jsonObject.getLong("pubtime")));
+            return builder.addUnit(jsonObject.toString(), index, Configuration.INDEX_TYPE_ARTICLE, Mapper.FieldArticle.ID);
 
         } catch (Exception e) {
             logger.error(ExceptionUtil.getExceptionTrace(e));
@@ -2056,7 +2107,8 @@ public class SearchBuilder {
             if (builder == null) {
                 builder = new IndexBuilder();
             }
-            return builder.deleteUnit(jsonObject.toString(), Configuration.INDEX_NAME, Configuration.INDEX_TYPE_ARTICLE, Mapper.FieldArticle.ID);
+            String index = "news"+ new SimpleDateFormat("yyyyMM").format(new Date(jsonObject.getLong("pubtime")));
+            return builder.deleteUnit(jsonObject.toString(), index, Configuration.INDEX_TYPE_ARTICLE, Mapper.FieldArticle.ID);
 
         } catch (Exception e) {
             logger.error(ExceptionUtil.getExceptionTrace(e));

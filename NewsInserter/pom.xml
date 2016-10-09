@@ -146,6 +146,7 @@
         </dependency>
 
     </dependencies>
+
     <distributionManagement>
         <repository>
             <id>nexus-releases</id>

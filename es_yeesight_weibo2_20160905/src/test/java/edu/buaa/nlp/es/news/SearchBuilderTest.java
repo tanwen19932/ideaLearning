@@ -20,13 +20,13 @@ public class SearchBuilderTest
 
     public void testBuildQuery()
             throws Exception {
-        String json = "{\"keyword\":\"(\\\"US navy\\\" and (\\\"technology\\\" or \\\"new\\\" or \\\"launch\\\" or \\\"order\\\" or \\\"finance\\\" or \\\"equipment\\\" or \\\"carrier\\\" or \\\"win\\\" or \\\"contract\\\" or \\\"invest\\\" or \\\"adopt\\\" or \\\"design\\\")) or \\\"littoral combatship\\\"\",\"order\":\"desc\",\"fieldName\":\"_score\",\"highlight\":false,\"resultType\":\"front\",\"pageNo\":\"1\",\"pageSize\":\"10\",\"similarityId\":\"\",\"isSensitive\":[0]}";
+        //String json = "{\"keyword\":\"(\\\"US navy\\\" and  and (\\\"technology\\\" or \\\"new\\\" or \\\"launch\\\" or \\\"order\\\" or \\\"finance\\\" or \\\"equipment\\\" or \\\"carrier\\\" or \\\"win\\\" or \\\"contract\\\" or \\\"invest\\\" or \\\"adopt\\\" or \\\"design\\\")) or \\\"littoral combatship\\\"\",\"order\":\"desc\",\"fieldName\":\"_score\",\"highlight\":false,\"resultType\":\"front\",\"pageNo\":\"1\",\"pageSize\":\"10\",\"similarityId\":\"\",\"isSensitive\":[0]}";
+        String json = "{\"keyword\":\"房产\",\"beginDate\":\"2016-01-01 00:00:00\",\"endDate\":\"2016-12-31 00:00:00\",\"order\":\"asc\",\"fieldName\":\"_score\",\"highlight\":false,\"resultType\":\"front\",\"pageNo\":\"1\",\"pageSize\":\"1\",\"similarityId\":\"\",\"isSensitive\":[0]}";
 
         //String json = "(抗生素) and  (()or () and ())";
-        SearchBuilder searchBuilder = new SearchBuilder();
+      SearchBuilder searchBuilder = new  SearchBuilder();
         //System.out.println(searchBuilder.initKeyword(json));
         System.out.println( searchBuilder.crossSearch(json));
-        String a = "";
     }
 
     public void testDelete()
@@ -49,73 +49,4 @@ public class SearchBuilderTest
         }
     }
 
-    public void testInitSensitiveModels()
-            throws Exception {
-
-    }
-
-    public void testAddLeader()
-            throws Exception {
-
-    }
-
-    public void testAddSensiWords()
-            throws Exception {
-
-    }
-
-    public void testFilterSearch()
-            throws Exception {
-
-    }
-
-    public void testCrossSearch()
-            throws Exception {
-
-    }
-
-    public void testSpecialSearch()
-            throws Exception {
-
-    }
-
-    public void testInitAdvancedQuery()
-            throws Exception {
-
-    }
-
-    public void testInitKeyword()
-            throws Exception {
-
-    }
-
-    public void testClose()
-            throws Exception {
-
-    }
-
-    public void testUpdateUnit()
-            throws Exception {
-
-    }
-
-    public void testInsertUnit()
-            throws Exception {
-
-    }
-
-    public void testBuildQueryTotal()
-            throws Exception {
-
-    }
-
-    public void testDeleteUnit()
-            throws Exception {
-
-    }
-
-    public void testAddUnitBatch()
-            throws Exception {
-
-    }
 }

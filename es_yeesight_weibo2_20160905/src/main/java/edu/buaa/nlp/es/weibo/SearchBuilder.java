@@ -1,23 +1,14 @@
 package edu.buaa.nlp.es.weibo;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+import edu.buaa.nlp.es.client.ESClient;
+import edu.buaa.nlp.es.constant.Configuration;
+import edu.buaa.nlp.es.exception.ExceptionUtil;
+import edu.buaa.nlp.es.exception.QueryFormatException;
+import edu.buaa.nlp.es.util.*;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-
 import org.apache.log4j.Logger;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
-
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
@@ -32,21 +23,18 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
-import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.highlight.HighlightField;
 import org.elasticsearch.search.sort.SortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 
-import edu.buaa.nlp.es.client.ESClient;
-import edu.buaa.nlp.es.constant.Configuration;
-import edu.buaa.nlp.es.exception.ExceptionUtil;
-import edu.buaa.nlp.es.exception.QueryFormatException;
-
-import edu.buaa.nlp.es.util.CharUtil;
-import edu.buaa.nlp.es.util.Constant;
-import edu.buaa.nlp.es.util.DateUtil;
-import edu.buaa.nlp.es.util.PingyinTool;
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+import java.net.UnknownHostException;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 @SuppressWarnings("deprecation")
@@ -308,6 +296,7 @@ public class SearchBuilder {
 
 //		qb.must(initQb);
 		FilteredQueryBuilder fqb=QueryBuilders.filteredQuery(initQb, filterQuery(obj));
+		logger.info("[es-query]-"+fqb.toString());
 		SearchRequestBuilder srb=client.prepareSearch(Configuration.SOCIALITY_INDEX_NAME);
 		srb.setQuery(fqb);
 		String type=obj.getString(Mapper.Query.INDEX_TYPE);
@@ -356,6 +345,9 @@ public class SearchBuilder {
 		}
 		SearchRequestBuilder srb=buildQuery(obj);
 		if(srb==null) return "";
+		if (!ValidateQuery.check(Configuration.SOCIALITY_INDEX_NAME, Configuration.SOCIALITY_INDEX_TYPE_WEIBO, srb.toString())) {
+			return "";
+		}
 		SearchResponse sr=srb
 				.addSort(getSort(obj))
 				.setMinScore(Configuration.QUERY_RESULT_MIN_SCORE) //最低分值
@@ -402,12 +394,15 @@ public class SearchBuilder {
 		/*if(goal>shards) {
 			goal=(int) Math.ceil(1.0*goal/shards);
 		}*/
+		srb .addSort(getSort(obj))
+				//				.setMinScore(Mapper.QUERY_RESULT_MIN_SCORE) //最低分值
+			.setSearchType(SearchType.SCAN)
+			.setSize(goal)
+			.setScroll(new TimeValue(6000));
+		if (!ValidateQuery.check(Configuration.SOCIALITY_INDEX_NAME, Configuration.SOCIALITY_INDEX_TYPE_WEIBO, srb.toString())) {
+			return "";
+		}
 		SearchResponse sr1=srb
-				.addSort(getSort(obj))
-//				.setMinScore(Mapper.QUERY_RESULT_MIN_SCORE) //最低分值
-				.setSearchType(SearchType.SCAN)
-				.setSize(goal)
-				.setScroll(new TimeValue(6000))
 				.execute().actionGet();
 		logger.info("[es-query]-"+srb.toString());
 		List<JSONObject> list=new ArrayList<JSONObject>();

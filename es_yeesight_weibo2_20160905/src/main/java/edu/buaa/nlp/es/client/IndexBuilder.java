@@ -1,13 +1,8 @@
 package edu.buaa.nlp.es.client;
 
-import java.io.IOException;
-import java.net.UnknownHostException;
-import java.util.Iterator;
-import java.util.concurrent.ExecutionException;
-
+import edu.buaa.nlp.es.exception.ExceptionUtil;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-
 import org.apache.log4j.Logger;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.bulk.BulkResponse;
@@ -17,13 +12,12 @@ import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.script.Script;
 
-import edu.buaa.nlp.es.constant.Configuration;
-import edu.buaa.nlp.es.exception.ExceptionUtil;
-import edu.buaa.wordsegment.PreProcessor;
+import java.io.IOException;
+import java.net.UnknownHostException;
+import java.util.Iterator;
+import java.util.concurrent.ExecutionException;
 
 /**
  * 索引工具类
@@ -55,7 +49,6 @@ public class IndexBuilder {
 	/**
 	 * 索引单个新闻
 	 * @param jsonUnit 内容单元json串，key与IndexMapper.FieldXX中定义的保持一致
-	 * @param indexName指定特定的index名称
 	 * @param type 指定索引中的类型
 	 * @param idKey 指定的id键名
 	 * @return
@@ -178,7 +171,6 @@ public class IndexBuilder {
 	
 	/**
 	 * 根据ID删除文档
-	 * @param jsonUnit
 	 * @return
 	 */
 	public boolean deleteUnit(String id,String indexName,String indexType){
