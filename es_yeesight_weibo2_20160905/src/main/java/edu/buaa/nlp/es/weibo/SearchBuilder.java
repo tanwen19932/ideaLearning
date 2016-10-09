@@ -358,7 +358,7 @@ public class SearchBuilder {
 		logger.info("[es-query]-"+srb.toString());
 		//封装结果
 		SearchHit sh=null;
-		List<JSONObject> list=new ArrayList<JSONObject>();
+		List<JSONObject> list=new ArrayList<>();
 		for(int i=0; i<hits.hits().length; i++){
 			sh=hits.getAt(i);
 			list.add(getResultByType(sh, obj.getString(Mapper.Query.RESULT_TYPE)));

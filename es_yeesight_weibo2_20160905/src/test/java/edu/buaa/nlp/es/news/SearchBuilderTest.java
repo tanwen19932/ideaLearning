@@ -21,8 +21,8 @@ public class SearchBuilderTest
     public void testBuildQuery()
             throws Exception {
         //String json = "{\"keyword\":\"(\\\"US navy\\\" and  and (\\\"technology\\\" or \\\"new\\\" or \\\"launch\\\" or \\\"order\\\" or \\\"finance\\\" or \\\"equipment\\\" or \\\"carrier\\\" or \\\"win\\\" or \\\"contract\\\" or \\\"invest\\\" or \\\"adopt\\\" or \\\"design\\\")) or \\\"littoral combatship\\\"\",\"order\":\"desc\",\"fieldName\":\"_score\",\"highlight\":false,\"resultType\":\"front\",\"pageNo\":\"1\",\"pageSize\":\"10\",\"similarityId\":\"\",\"isSensitive\":[0]}";
-        String json = "{\"keyword\":\"房产\",\"beginDate\":\"2016-01-01 00:00:00\",\"endDate\":\"2016-12-31 00:00:00\",\"order\":\"asc\",\"fieldName\":\"_score\",\"highlight\":false,\"resultType\":\"front\",\"pageNo\":\"1\",\"pageSize\":\"1\",\"similarityId\":\"\",\"isSensitive\":[0]}";
-
+        String json = "{\"keyword\":\"房产\",\"beginDate\":\"2016-01-01 00:00:00\",\"endDate\":\"2016-12-31 00:00:00\",\"order\":\"asc\",\"fieldName\":\"_score\",\"highlight\":true,\"resultType\":\"front\",\"pageNo\":\"1\",\"pageSize\":\"100\",\"similarityId\":\"\",\"isSensitive\":[0]}";
+        System.out.println(json);
         //String json = "(抗生素) and  (()or () and ())";
       SearchBuilder searchBuilder = new  SearchBuilder();
         //System.out.println(searchBuilder.initKeyword(json));

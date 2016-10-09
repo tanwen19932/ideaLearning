@@ -111,7 +111,6 @@ public class SearchBuilder {
         }
     }
 
-
     // for sensitive
     public static boolean initSensitiveModels(String leadersFile, String sensiWordsFile) {
         try {
@@ -256,7 +255,6 @@ public class SearchBuilder {
             return 1;
         }
     }
-
     /**
      * 验证query是否合法，对不合法部分进行默认初始化
      *
@@ -499,9 +497,7 @@ public class SearchBuilder {
         //获取过滤器设置
         QueryBuilder filter = filterQuery( obj );
 
-        SearchRequestBuilder srb = client.prepareSearch(
-                recentIndexes
-        );
+        SearchRequestBuilder srb = client.prepareSearch( recentIndexes );
 
         String type = obj.getString( Mapper.Query.INDEX_TYPE );
         if (type != null && Constant.QUERY_INDEX_TYPE_ALL.equals( type )) {
@@ -772,7 +768,6 @@ public class SearchBuilder {
 
     private QueryBuilder genQuery(JSONObject obj) {
         String key = obj.getString( Mapper.Query.KEYWORD );
-
         //for sensitive
         if (handledSensitiveWords == false) {
             int sensiResult = handleSensitiveWords( key );
@@ -1017,7 +1012,7 @@ public class SearchBuilder {
 
     public SearchRequestBuilder buildQuery(JSONObject obj) {
         FilteredQueryBuilder fqb = QueryBuilders.filteredQuery( genQuery( obj ), filterQuery( obj ) );
-        SearchRequestBuilder srb = client.prepareSearch();//indexes);	//
+        SearchRequestBuilder srb = client.prepareSearch(recentIndexes);//indexes);	//
         srb.setQuery( fqb );
         String type = obj.getString( Mapper.Query.INDEX_TYPE );
         if (type != null && Constant.QUERY_INDEX_TYPE_ALL.equals( type )) {
