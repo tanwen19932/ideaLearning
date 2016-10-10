@@ -61,6 +61,7 @@ public class SearchBuilder {
     private static Pattern patYinHao = Pattern.compile( "(\"[^\"]+\")" );
     private static String yinhaoTag = "YH_"; //引号标签
     private static String emptyResponse = "\"{\\\"resultList\\\":[],\\\"resultCount\\\":0}\";";
+    String indexWithAsterisk = "news*";
     String[] recentIndexes = {"news201501", "news201502", "news201503", "news201504", "news201505", "news201506",
             "news201507", "news201508", "news201509", "news201510", "news201511", "news201512",
             "news201601", "news201602", "news201603", "news201604", "news201605", "news201606",
@@ -497,7 +498,7 @@ public class SearchBuilder {
         //获取过滤器设置
         QueryBuilder filter = filterQuery( obj );
 
-        SearchRequestBuilder srb = client.prepareSearch( recentIndexes );
+        SearchRequestBuilder srb = client.prepareSearch( indexWithAsterisk );
 
         String type = obj.getString( Mapper.Query.INDEX_TYPE );
         if (type != null && Constant.QUERY_INDEX_TYPE_ALL.equals( type )) {
@@ -800,10 +801,8 @@ public class SearchBuilder {
                 .field( Mapper.FieldArticle.TITLE_SRC, Configuration.TITLE_SRC_WEIGHT ) // 100)
                 .field( Mapper.FieldArticle.TITLE_EN, Configuration.TITLE_WEIGHT ) //10)
                 .field( Mapper.FieldArticle.TITLE_ZH, Configuration.TITLE_WEIGHT ) //10)
-                .field( Mapper.FieldArticle.TEXT_SRC, Configuration.TEXT_WEIGHT ) //2)
-                .field( Mapper.FieldArticle.TEXT_EN, Configuration.TEXT_WEIGHT ) //2)
-                .field( Mapper.FieldArticle.TEXT_ZH, Configuration.TEXT_WEIGHT ) // 2)
-
+                .field( Mapper.FieldArticle.ABSTRACT_EN, Configuration.TEXT_WEIGHT ) //2)
+                .field( Mapper.FieldArticle.ABSTRACT_ZH, Configuration.TEXT_WEIGHT ) // 2)
                 ;
 
         QueryBuilder fsqb = initQb;
@@ -987,8 +986,6 @@ public class SearchBuilder {
             Map<String, Object> scpt3params = new HashMap<>();
             String script3Str = "mediaLevel";
             Script script3 = new Script( script3Str, ScriptService.ScriptType.FILE, "groovy", scpt3params );
-
-
             fsqb = QueryBuilders.functionScoreQuery( initQb )
                     .add( ScoreFunctionBuilders.scriptFunction( script1 ) )
                     .add( ScoreFunctionBuilders.scriptFunction( script2 ) )
@@ -1012,7 +1009,7 @@ public class SearchBuilder {
 
     public SearchRequestBuilder buildQuery(JSONObject obj) {
         FilteredQueryBuilder fqb = QueryBuilders.filteredQuery( genQuery( obj ), filterQuery( obj ) );
-        SearchRequestBuilder srb = client.prepareSearch(recentIndexes);//indexes);	//
+        SearchRequestBuilder srb = client.prepareSearch(indexWithAsterisk);//indexes);	//
         srb.setQuery( fqb );
         String type = obj.getString( Mapper.Query.INDEX_TYPE );
         if (type != null && Constant.QUERY_INDEX_TYPE_ALL.equals( type )) {
@@ -1036,7 +1033,7 @@ public class SearchBuilder {
 
     public SearchRequestBuilder buildQueryTotal(JSONObject obj) {
         FilteredQueryBuilder fqb = QueryBuilders.filteredQuery( genQuery( obj ), filterQuery( obj ) );
-        SearchRequestBuilder srb = client.prepareSearch( totalIndexes );
+        SearchRequestBuilder srb = client.prepareSearch( indexWithAsterisk );
         srb.setQuery( fqb );
         String type = obj.getString( Mapper.Query.INDEX_TYPE );
         if (type != null && Constant.QUERY_INDEX_TYPE_ALL.equals( type )) {
@@ -1061,7 +1058,7 @@ public class SearchBuilder {
     //状态为green的shard数量
     private int greenShards(JSONObject obj) {
         ClusterHealthResponse chr = client.admin().cluster()
-                .prepareHealth( recentIndexes )
+                .prepareHealth( indexWithAsterisk )
                 .setWaitForGreenStatus()
                 .get();
         ClusterHealthStatus status = chr.getStatus();
