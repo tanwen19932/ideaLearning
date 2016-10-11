@@ -1,8 +1,8 @@
 package edu.buaa.nlp.es.constant;
 
-import java.util.Properties;
-
 import edu.buaa.nlp.es.util.FileUtil;
+
+import java.util.Properties;
 
 public class Configuration {
 
@@ -66,7 +66,7 @@ public class Configuration {
 		COMMON_INDEX_NAME=prop.getProperty("COMMON_INDEX_NAME","common").trim();
 		INDEX_TYPE_MEDIA=prop.getProperty("INDEX_TYPE_MEDIA","media").trim();
 		
-		SOCIALITY_INDEX_NAME=prop.getProperty("SOCIALITY_INDEX_NAME","sociality").trim();
+		SOCIALITY_INDEX_NAME=prop.getProperty("SOCIALITY_INDEX_NAME","sociality*").trim();
 		SOCIALITY_INDEX_TYPE_WEIBO=prop.getProperty("SOCIALITY_INDEX_TYPE_WEIBO","weibo").trim();
 		SOCIALITY_INDEX_TYPE_WEIBO_COMMENT=prop.getProperty("SOCIALITY_INDEX_TYPE_WEIBO_COMMENT","weibocomment").trim();
 		

@@ -59,8 +59,14 @@ public class SearchBuilder {
 	static {
 		pingyinTool = new PingyinTool();
 	}
-	
-	
+
+	public static SearchBuilder getTotal(){
+		return new SearchBuilder( Configuration.CLUSTER_NAME,Configuration.TOTAL_INDEX_SERVER_ADDRESS );
+	}
+	public static SearchBuilder getRecent(){
+		return new SearchBuilder();
+	}
+
 	public SearchBuilder() {
 		try {
 			this.client = ESClient.getClient();
@@ -68,6 +74,7 @@ public class SearchBuilder {
 			logger.error(ExceptionUtil.getExceptionTrace(e));
 		}
 	}
+
 	public SearchBuilder(String clusterName,String serverAddress) {
 		try {
 			this.client = ESClient.getClient(clusterName,serverAddress);
@@ -271,10 +278,9 @@ public class SearchBuilder {
 	}
 	
 	
-	
-	public SearchRequestBuilder buildQuery(JSONObject obj){
+	public QueryBuilder genQuery(JSONObject obj){
 		String key=obj.getString(Mapper.Query.KEYWORD);
-		
+
 		if(handledSensitiveWords == false)
 		{
 			int sensiResult = handleSensitiveWords(key);
@@ -283,22 +289,23 @@ public class SearchBuilder {
 				return null;
 			}
 		}
-		
-		handledSensitiveWords = false;		
-		
-		//cross
-		BoolQueryBuilder qb=QueryBuilders.boolQuery();
 
+		handledSensitiveWords = false;
+
+		//cross
 		QueryBuilder initQb=QueryBuilders.queryStringQuery(key)
 				.field(Mapper.FieldWeibo.TEXT,5)
 				.field(Mapper.FieldWeibo.TEXTZH,2)			//
 				.field(Mapper.FieldWeibo.TEXTEN,2);
 
-//		qb.must(initQb);
-		FilteredQueryBuilder fqb=QueryBuilders.filteredQuery(initQb, filterQuery(obj));
-		logger.info("[es-query]-"+fqb.toString());
+		//		qb.must(initQb);
+		return QueryBuilders.filteredQuery(initQb, filterQuery(obj));
+	}
+
+	public SearchRequestBuilder buildQuery(JSONObject obj){
 		SearchRequestBuilder srb=client.prepareSearch(Configuration.SOCIALITY_INDEX_NAME);
-		srb.setQuery(fqb);
+		srb.setQuery(genQuery( obj ));
+		logger.info("[es-query]-"+srb);
 		String type=obj.getString(Mapper.Query.INDEX_TYPE);
 		//同时从Weibo和微博评论中查询？
 		if(type!=null && Constant.QUERY_INDEX_TYPE_ALL.equals(type)){
