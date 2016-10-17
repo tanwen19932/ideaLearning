@@ -1,26 +1,12 @@
 package edu.buaa.nlp.test;
 
-import javax.naming.directory.SearchResult;
-
-import org.apache.log4j.PropertyConfigurator;
-import org.elasticsearch.action.search.SearchRequestBuilder;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.common.logging.ESLogger;
-import org.elasticsearch.common.logging.ESLoggerFactory;
-
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-import edu.buaa.nlp.es.client.ESClient;
-import edu.buaa.nlp.es.client.IndexBuilder;
-import edu.buaa.nlp.es.constant.Configuration;
-import edu.buaa.nlp.es.exception.ExceptionUtil;
 import edu.buaa.nlp.es.exception.QueryFormatException;
 import edu.buaa.nlp.es.news.Mapper;
 import edu.buaa.nlp.es.news.SearchBuilder;
 import edu.buaa.nlp.es.util.Constant;
-import edu.buaa.nlp.es.util.DateUtil;
-import edu.buaa.wordsegment.PreProcessor;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+import org.apache.log4j.PropertyConfigurator;
 
 public class SearchTest {
 	
@@ -75,7 +61,6 @@ public class SearchTest {
 	
 	public static void testAdvanced2(String keyword) throws QueryFormatException{
 		SearchBuilder sb=new SearchBuilder();
-		SearchBuilder.initSensitiveModels("data/sensitive/leaders.txt", "data/sensitive/sensiwords.txt");
 		JSONObject jsonQuery=new JSONObject();
 //		jsonQuery.put(Mapper.Query.KEYWORD, "（美国&特朗普）");
 		jsonQuery.put(Mapper.Query.KEYWORD, "\"美国大选\"");

@@ -76,6 +76,7 @@ public class PingyinTool {
                     	temp =String.valueOf(t[0].charAt(0));
                     }
                     py += temp+(i==str.length()-1?"":spera);
+                    py += " ";
                 }
             }
         }

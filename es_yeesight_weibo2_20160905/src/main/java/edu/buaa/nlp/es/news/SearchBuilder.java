@@ -6,7 +6,11 @@ import edu.buaa.nlp.es.client.IndexBuilder;
 import edu.buaa.nlp.es.constant.Configuration;
 import edu.buaa.nlp.es.exception.ExceptionUtil;
 import edu.buaa.nlp.es.exception.QueryFormatException;
-import edu.buaa.nlp.es.util.*;
+import edu.buaa.nlp.es.query.KeywordGen;
+import edu.buaa.nlp.es.util.CharUtil;
+import edu.buaa.nlp.es.util.Constant;
+import edu.buaa.nlp.es.util.DateUtil;
+import edu.buaa.nlp.es.util.ValidateQuery;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.log4j.Logger;
@@ -33,9 +37,6 @@ import org.elasticsearch.search.sort.SortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -48,53 +49,10 @@ public class SearchBuilder {
     private IndexBuilder builder = null;
     private static Logger logger = Logger.getLogger( SearchBuilder.class );
 
-    //for sensitive
-    private static Map<String, Integer> hashLeaders = null;
-    private static Map<String, Integer> hashSensiWords = null;
-    private static Map<String, Integer> hashLeadersPingyin = null;
-    private static Map<String, Integer> hashSensiWordsPingyin = null;
-    private boolean handledSensitiveWords = false;
-    private static PingyinTool pingyinTool = null;
 
-    //for field搜索
-    private static Map<String, String> hashFieldKeywords = null;    //存储可用于域搜索的关键词
-    private static Pattern patYinHao = Pattern.compile( "(\"[^\"]+\")" );
-    private static String yinhaoTag = "YH_"; //引号标签
     private static String emptyResponse = "\"{\\\"resultList\\\":[],\\\"resultCount\\\":0}\";";
     String indexWithAsterisk = "news*";
-    String[] recentIndexes = {"news201501", "news201502", "news201503", "news201504", "news201505", "news201506",
-            "news201507", "news201508", "news201509", "news201510", "news201511", "news201512",
-            "news201601", "news201602", "news201603", "news201604", "news201605", "news201606",
-            "news201607", "news201508", "news201609", "news201610", "news201611", "news201612"};
-    String[] totalIndexes = {"news201601", "news201602", "news201603", "news201604", "news201605", "news201606",
-            "news201607", "news201508", "news201609", "news201610", "news201611", "news201612",
-            "news201501", "news201502", "news201503", "news201504", "news201505", "news201506",
-            "news201507", "news201508", "news201509", "news201510", "news201511", "news201512",
-            "news201401", "news201402", "news201403", "news201404", "news201405", "news201406",
-            "news201407", "news201408", "news201409", "news201410", "news201411", "news201412",
-            "news201301", "news201302", "news201303", "news201304", "news201305", "news201306",
-            "news201307", "news201308", "news201309", "news201310", "news201311", "news201312",
-            "news201201", "news201202", "news201203", "news201204", "news201205", "news201206",
-            "news201207", "news201208", "news201209", "news201210", "news201211", "news201212",
-            "news201101", "news201102", "news201103", "news201104", "news201105", "news201106",
-            "news201107", "news201108", "news201109", "news201110", "news201111", "news201112",
-            "news201001", "news201002", "news201003", "news201004", "news201005", "news201006",
-            "news201007", "news201008", "news201009", "news201010", "news201011", "news201012"};
-
-    static {
-        pingyinTool = new PingyinTool();
-
-        hashFieldKeywords = new HashMap<String, String>();
-        hashFieldKeywords.put( "title", "titleZh:<value> or titleEn:<value> or titleSrc:<value>" );
-        hashFieldKeywords.put( "titlezh", "titleZh" );
-        hashFieldKeywords.put( "titleen", "titleEn" );
-        hashFieldKeywords.put( "titlesrc", "titleSrc" );
-        hashFieldKeywords.put( "text", "textSrc:<value> or textEn:<value> or textZh:<value>" );
-        hashFieldKeywords.put( "textsrc", "textSrc" );
-        hashFieldKeywords.put( "texten", "textEn" );
-        hashFieldKeywords.put( "textzh", "textZh" );
-    }
-
+    KeywordGen keywordGen = new KeywordGen();
 
     public SearchBuilder() {
         try {
@@ -112,150 +70,6 @@ public class SearchBuilder {
         }
     }
 
-    // for sensitive
-    public static boolean initSensitiveModels(String leadersFile, String sensiWordsFile) {
-        try {
-            hashLeaders = new HashMap<String, Integer>();
-            hashLeadersPingyin = new HashMap<String, Integer>();
-            InputStreamReader isR = new InputStreamReader( new FileInputStream( leadersFile ), "utf-8" );
-            BufferedReader br = new BufferedReader( isR );
-
-            String line = "";
-            String clearLine = "";
-            while ((line = br.readLine()) != null) {
-                if (line.trim().isEmpty()) continue;
-
-                clearLine = CharUtil.ToDBC( line );
-                clearLine = CharUtil.removeUnChar( clearLine );
-                if (clearLine.length() > 1) {
-                    clearLine = pingyinTool.toPinYin( clearLine, "", PingyinTool.Type.LOWERCASE ).toLowerCase();
-                    hashLeadersPingyin.put( clearLine, 1 );
-                }
-                hashLeaders.put( line.trim().toLowerCase(), 1 );
-
-            }
-            br.close();
-            isR.close();
-
-
-            hashSensiWords = new HashMap<String, Integer>();
-            hashSensiWordsPingyin = new HashMap<String, Integer>();
-            isR = new InputStreamReader( new FileInputStream( sensiWordsFile ), "utf-8" );
-            br = new BufferedReader( isR );
-
-            while ((line = br.readLine()) != null) {
-                if (line.trim().isEmpty()) continue;
-
-                clearLine = CharUtil.ToDBC( line );
-                clearLine = CharUtil.removeUnChar( clearLine );
-
-                if (clearLine.length() > 1) {
-                    clearLine = pingyinTool.toPinYin( clearLine, "", PingyinTool.Type.LOWERCASE ).toLowerCase();
-                    hashSensiWordsPingyin.put( clearLine, 1 );
-                }
-                hashSensiWords.put( line.trim().toLowerCase(), 1 );
-            }
-            br.close();
-            isR.close();
-
-            return true;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    public static boolean addLeader(String word) {
-        try {
-            if (hashLeaders == null) {
-                hashLeaders = new HashMap<String, Integer>();
-                hashLeadersPingyin = new HashMap<String, Integer>();
-            }
-            hashLeaders.put( word.trim().toLowerCase(), 1 );
-            word = CharUtil.ToDBC( word );
-            word = CharUtil.removeUnChar( word );
-
-            if (word.length() > 1) {
-                word = pingyinTool.toPinYin( word, "", PingyinTool.Type.LOWERCASE ).toLowerCase();
-                hashLeadersPingyin.put( word, 1 );
-            }
-            return true;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    public static boolean addSensiWords(String word) {
-        try {
-            if (hashSensiWords == null) {
-                hashSensiWords = new HashMap<String, Integer>();
-                hashSensiWordsPingyin = new HashMap<String, Integer>();
-            }
-            hashSensiWords.put( word.trim().toLowerCase(), 1 );
-            word = CharUtil.ToDBC( word );
-            word = CharUtil.removeUnChar( word );
-
-            if (word.length() > 1) {
-                word = pingyinTool.toPinYin( word, "", PingyinTool.Type.LOWERCASE ).toLowerCase();
-                hashSensiWordsPingyin.put( word, 1 );
-            }
-            return true;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    private int handleSensitiveWords(String word) {
-        try {
-            String clearword = CharUtil.ToDBC( word );
-            clearword = CharUtil.removeUnChar( clearword ).toLowerCase();
-
-
-            if (clearword.length() > 1) {
-
-                String wordPingyin = pingyinTool.toPinYin( clearword, "", PingyinTool.Type.LOWERCASE );
-
-
-                if (hashLeadersPingyin != null) {
-                    for (String key : hashLeadersPingyin.keySet()) {
-                        if (wordPingyin.contains( key )) {
-                            return 1;
-                        }
-                    }
-                }
-
-                if (hashSensiWordsPingyin != null) {
-                    for (String key : hashSensiWordsPingyin.keySet()) {
-                        if (wordPingyin.contains( key )) {
-                            return 1;
-                        }
-                    }
-                }
-            }
-
-            if (hashLeaders != null) {
-                for (String key : hashLeaders.keySet()) {
-                    if (word.contains( key )) {
-                        return 1;
-                    }
-                }
-            }
-
-            if (hashSensiWords != null) {
-                for (String key : hashSensiWords.keySet()) {
-                    if (word.contains( key )) {
-                        return 1;
-                    }
-                }
-            }
-            return 0;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return 1;
-        }
-    }
     /**
      * 验证query是否合法，对不合法部分进行默认初始化
      *
@@ -288,30 +102,12 @@ public class SearchBuilder {
 
         JSONObject obj = initQuery( jsonQuery );
         String keyword = obj.getString( Mapper.Query.KEYWORD );
-        keyword = initKeyword( keyword );
+        keyword = keywordGen.initKeyword( keyword );
         System.out.println( keyword );
         obj.put( Mapper.Query.KEYWORD, keyword.trim() );
 
-		/*
-        //for test the following code
-		JSONObject qb3=new JSONObject();
-		qb3.put(Mapper.AdvancedQuery.FIELD, Mapper.FieldArticle.ABSTRACT_ZH);
-		qb3.put(Mapper.AdvancedQuery.KEYWORD, "降水");
-		qb3.put(Mapper.AdvancedQuery.OPERATOR, Constant.QUERY_OPERATOR_AND);
-
-		JSONObject qb4=new JSONObject();
-		qb4.put(Mapper.AdvancedQuery.FIELD, Mapper.FieldArticle.TITLE_ZH);
-		qb4.put(Mapper.AdvancedQuery.KEYWORD, "长江");
-		qb4.put(Mapper.AdvancedQuery.OPERATOR, Constant.QUERY_OPERATOR_OR);
-		JSONArray adArr=new JSONArray();
-		adArr.add(qb3);
-		adArr.add(qb4);
-		obj.put(Mapper.AdvancedQuery.QUERY_BODY, adArr.toString());
-		*/
-
-
         //
-		/*
+        /*
 		JSONArray arr=JSONArray.fromObject(obj.getString(Mapper.AdvancedQuery.QUERY_BODY));
 		StringBuffer sb=new StringBuffer();
 		Iterator<JSONObject> it=arr.iterator();
@@ -421,10 +217,9 @@ public class SearchBuilder {
         try {
             obj = JSONObject.fromObject( jsonQuery );
             String keyword = obj.getString( Mapper.Query.KEYWORD );
-            if (this.handleSensitiveWords( keyword ) == 1) {
+            if (this.keywordGen.handleSensitiveWords( keyword ) == 1) {
                 return null;
             }
-            handledSensitiveWords = true;
             obj = initAdvancedQuery( jsonQuery );
         } catch (QueryFormatException e) {
             logger.error( ExceptionUtil.getExceptionTrace( e ) );
@@ -770,14 +565,10 @@ public class SearchBuilder {
     private QueryBuilder genQuery(JSONObject obj) {
         String key = obj.getString( Mapper.Query.KEYWORD );
         //for sensitive
-        if (handledSensitiveWords == false) {
-            int sensiResult = handleSensitiveWords( key );
-            if (sensiResult == 1) {
-                return null;
-            }
+        int sensiResult = keywordGen.handleSensitiveWords( key );
+        if (sensiResult == 1) {
+            return null;
         }
-        handledSensitiveWords = false;
-
 
 /*
         String oldKey=JSONObject.fromObject(jsonQuery).getString(Mapper.Query.KEYWORD);
@@ -1003,13 +794,13 @@ public class SearchBuilder {
             return SortBuilders.scoreSort();
         }
         SortOrder order = Constant.QUERY_SORT_ORDER_ASC.equals( orderStr ) ? SortOrder.ASC : SortOrder.DESC;
-        //		return SortBuilders.scriptSort("new java.text.SimpleDateFormat('yyyy-MM-dd HH:mm:dd').format(new Date(doc['"+Mapper.FieldArticle.PUBDATE+"'].value))", "string").order(order);
+        //return SortBuilders.scriptSort("new java.text.SimpleDateFormat('yyyy-MM-dd HH:mm:dd').format(new Date(doc['"+Mapper.FieldArticle.PUBDATE+"'].value))", "string").order(order);
         return SortBuilders.fieldSort( obj.getString( Mapper.Sort.FIELD_NAME ) ).order( order );
     }
 
     public SearchRequestBuilder buildQuery(JSONObject obj) {
         FilteredQueryBuilder fqb = QueryBuilders.filteredQuery( genQuery( obj ), filterQuery( obj ) );
-        SearchRequestBuilder srb = client.prepareSearch(indexWithAsterisk);//indexes);	//
+        SearchRequestBuilder srb = client.prepareSearch( indexWithAsterisk );//indexes);	//
         srb.setQuery( fqb );
         String type = obj.getString( Mapper.Query.INDEX_TYPE );
         if (type != null && Constant.QUERY_INDEX_TYPE_ALL.equals( type )) {
@@ -1069,132 +860,6 @@ public class SearchBuilder {
     }
 
 
-    public String initKeyword(String keyword)
-            throws QueryFormatException {
-        //keyword = "titleZh:\"中国\"  or titleEn:\"中国\" or titleSrc:\"中国\"";
-        //keyword = "TITLE:冰棍";
-        //keyword = "\"冰棍\"";
-        //TODO 需进一步提高容错性
-
-        //把 引号的独立出来作为一个词
-        Matcher matYinhao = patYinHao.matcher( keyword );
-        int index = 0;
-        Map<String, String> hashYinhao = new HashMap<String, String>();
-        while (matYinhao.find()) {
-            ++index;
-            String yinhaoGroup = matYinhao.group( 1 );
-            hashYinhao.put( yinhaoTag + index, yinhaoGroup );
-        }
-        for (String key : hashYinhao.keySet()) {
-            keyword = keyword.replace( hashYinhao.get( key ), key );
-        }
-        keyword = checkBracketByRegexList( keyword );
-        keyword = keyword.trim();
-        keyword = keyword.replaceAll( "((and|not|or)\\s*)+\\s*\\(\\s*\\)", "" );
-        keyword = keyword.replaceAll( "((and|not|or)\\s*)+\\s*\\(\"\\s*\"\\)", "" );
-        keyword = keyword.replaceAll( "and\\s*\\(\"\\s*\"\\)", "" );
-        keyword = keyword.replaceAll( "and\\s+not\\s*\\(\\s*\\)", "" );
-        keyword = keyword.replaceAll( "and\\s*\\(\\s*\\)", "" );
-        keyword = keyword.replaceAll( "\\(\\s*\\)", "" );
-        keyword = keyword.replaceAll( "(（|\\()", " ( " )
-                .replaceAll( "(）|\\))", " ) " )
-                .replaceAll( "“", " \" " )
-                .replaceAll( "”", " \" " )
-                .trim();
-
-
-        keyword = keyword.replaceAll( "\\s+", " " );
-        keyword = keyword.replaceAll( "(and|AND)\\s+(not|NOT)", "_AND_NOT_" );
-        keyword = keyword.replaceAll( "and not", " " );
-        keyword = keyword.replaceAll( "\\s+(or|OR)\\s+", Constant.QUERY_OPERATOR_OR2 );
-        keyword = keyword.replaceAll( "\\s+(and|AND)\\s+", Constant.QUERY_OPERATOR_AND2 );
-        keyword = keyword.replaceAll( "\\s+(not|NOT)\\s+", Constant.QUERY_OPERATOR_NOT2 );
-
-        keyword = keyword.replaceAll( "\\(", " ( " )
-                .replaceAll( "\\s*\\(\\s*", "_(_" )
-                .replaceAll( "\\s*\\)\\s*", "_)_" )
-                .trim();
-
-        keyword = keyword.replace( " ", Constant.QUERY_OPERATOR_AND )
-                .replace( "&", Constant.QUERY_OPERATOR_AND )
-                .replace( "|", Constant.QUERY_OPERATOR_OR )
-                .replace( "~", Constant.QUERY_OPERATOR_NOT )
-        ;
-
-        keyword = keyword.replaceAll( "_AND_NOT_", " and not " );
-        keyword = keyword.replaceAll( Constant.QUERY_OPERATOR_OR2, " " + Constant.QUERY_OPERATOR_OR + " " );
-        keyword = keyword.replaceAll( Constant.QUERY_OPERATOR_AND2, " " + Constant.QUERY_OPERATOR_AND + " " );
-        keyword = keyword.replaceAll( Constant.QUERY_OPERATOR_NOT2, " " + Constant.QUERY_OPERATOR_NOT + " " );
-
-
-        keyword = keyword.replace( "_(_", " ( " );
-        keyword = keyword.replace( "_)_", " ) " );
-
-        String[] items = keyword.split( "\\s+" );
-        keyword = "";
-
-        for (String item : items) {
-            if (item.trim().isEmpty()) continue;
-            if (item.trim().equalsIgnoreCase( "and" )
-                    || item.equalsIgnoreCase( "not" )
-                    || item.equalsIgnoreCase( "or" )
-                    || item.equalsIgnoreCase( "(" )
-                    || item.equalsIgnoreCase( ")" )
-                    ) {
-                keyword += item + " ";
-            } else if (item.startsWith( "\"" ) && item.endsWith( "\"" )) {
-                keyword += item + " ";
-            } else {
-                //对于每个单元，都是用 引号 强括号
-                if (item.contains( ":" )) {
-                    String[] subItem = item.split( ":" );
-                    if (subItem.length == 2) {
-                        if (hashFieldKeywords.containsKey( subItem[0].toLowerCase() )) {
-                            String value = subItem[1];
-                            if (value.startsWith( "\"" ) && item.endsWith( "\"" )) {
-                                ;
-                            } else {
-                                value = "\"" + value + "\"";
-                            }
-                            String field = hashFieldKeywords.get( subItem[0].toLowerCase() );
-                            if (field.contains( "or" )) {
-                                keyword = " " + field.replaceAll( "<value>", value ) + " ";
-                            } else {
-                                keyword = " " + field + ":" + value + " ";
-                            }
-
-                        } else {
-                            keyword += " \"" + item + "\" ";
-                        }
-                    } else {
-                        keyword += " \"" + item + "\" ";
-                    }
-                } else {
-
-                    keyword += " \"" + item + "\" ";
-                }
-            }
-
-        }
-
-        keyword = keyword.replaceAll( "(AND\\s+OR\\s+)+", " OR " );
-        keyword = keyword.replaceAll( "(OR\\s+AND\\s+)+", " OR " );
-        keyword = keyword.replaceAll( "(AND\\s+NOT\\s+)+", " NOT " );
-        keyword = keyword.replaceAll( "(NOT\\s+AND\\s+)+", " NOT " );
-        keyword = keyword.replaceAll( "(OR\\s+)+", " OR " );
-        keyword = keyword.replaceAll( "(NOT\\s+)+", " NOT " );
-        keyword = keyword.replaceAll( "(AND\\s+)+", " AND " );
-        keyword = keyword.replaceAll( "\\s+", " " );
-
-        keyword = keyword.trim();
-
-        for (String key : hashYinhao.keySet()) {
-            keyword = keyword.replace( "\"" + key + "\"", hashYinhao.get( key ) );
-            keyword = keyword.replace( key + "(?=^\\d)", hashYinhao.get( key ) );
-        }
-        return keyword;
-    }
-
     private String checkBracketByRegexList(String keyword) {
         List<String> regexes = new ArrayList<>();
         regexes.add( "(and|not|or)\\s*\\(\\s*\\)" );
@@ -1241,6 +906,7 @@ public class SearchBuilder {
         if (type.equalsIgnoreCase( Constant.QUERY_RESULT_FRONT )) return getResult4Front( sh );
         if (type.equalsIgnoreCase( Constant.QUERY_RESULT_ANALYSIS )) return getResult4Analysis( sh );
         if (type.equalsIgnoreCase( Constant.QUERY_RESULT_DETAIL )) return getResult4Detail( sh );
+
         return null;
     }
 
@@ -1849,7 +1515,6 @@ public class SearchBuilder {
                 }
                 totalBuilder.addUnitBatch( hashJSONArray.get( yearMonth ).toString(), "news" + yearMonth, Configuration.INDEX_TYPE_ARTICLE, Mapper.FieldArticle.ID );
             }
-
             recentBuilder.close();
             totalBuilder.close();
 
@@ -1858,7 +1523,6 @@ public class SearchBuilder {
             logger.error( ExceptionUtil.getExceptionTrace( e ) );
         }
         return sum;
-
     }
 
     class KeywordEn

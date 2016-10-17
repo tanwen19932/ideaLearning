@@ -21,12 +21,16 @@ public class SearchBuilderTest
     public void testBuildQuery()
             throws Exception {
         //String json = "{\"keyword\":\"(\\\"US navy\\\" and  and (\\\"technology\\\" or \\\"new\\\" or \\\"launch\\\" or \\\"order\\\" or \\\"finance\\\" or \\\"equipment\\\" or \\\"carrier\\\" or \\\"win\\\" or \\\"contract\\\" or \\\"invest\\\" or \\\"adopt\\\" or \\\"design\\\")) or \\\"littoral combatship\\\"\",\"order\":\"desc\",\"fieldName\":\"_score\",\"highlight\":false,\"resultType\":\"front\",\"pageNo\":\"1\",\"pageSize\":\"10\",\"similarityId\":\"\",\"isSensitive\":[0]}";
-        String json = "{\"keyword\":\"美国\",\"beginDate\":\"2016-01-01 00:00:00\",\"endDate\":\"2016-12-31 00:00:00\",\"order\":\"desc\",\"fieldName\":\"_score\",\"highlight\":true,\"resultType\":\"front\",\"pageNo\":\"1\",\"pageSize\":\"100\",\"similarityId\":\"\",\"isSensitive\":[0]}";
+        String json = "{\"keyword\":\"生猪价格\",\"beginDate\":\"2016-01-01 00:00:00\",\"endDate\":\"2016-12-31 00:00:00\",\"order\":\"desc\",\"fieldName\":\"_score\",\"highlight\":true,\"resultType\":\"front\",\"pageNo\":\"1\",\"pageSize\":\"100\",\"similarityId\":\"\",\"isSensitive\":[0]}";
         System.out.println(json);
         //String json = "(抗生素) and  (()or () and ())";
-      SearchBuilder searchBuilder = new  SearchBuilder();
+     edu.buaa.nlp.es.weibo.SearchBuilder searchBuilder = new  edu.buaa.nlp.es.weibo.SearchBuilder();
+     SearchBuilder searchBuilder2 = new  SearchBuilder();
         //System.out.println(searchBuilder.initKeyword(json));
-        System.out.println( searchBuilder.crossSearch(json));
+        //System.out.println( " 社交检索 ： ");
+        //System.out.println( searchBuilder.crossSearch(json));
+        System.out.println( " 新闻检索 ： ");
+        System.out.println( searchBuilder2.crossSearch(json));
     }
 
     public void testDelete()
