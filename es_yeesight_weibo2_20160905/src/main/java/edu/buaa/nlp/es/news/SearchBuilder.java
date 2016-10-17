@@ -52,7 +52,7 @@ public class SearchBuilder {
 
     private static String emptyResponse = "\"{\\\"resultList\\\":[],\\\"resultCount\\\":0}\";";
     String indexWithAsterisk = "news*";
-    KeywordGen keywordGen = new KeywordGen();
+    static KeywordGen keywordGen = new KeywordGen();
 
     public SearchBuilder() {
         try {
@@ -70,6 +70,22 @@ public class SearchBuilder {
         }
     }
 
+    public static boolean addLeader(String word) {
+        return keywordGen.addLeader(word);
+    }
+    public static boolean addSensiWords(String word) {
+        return keywordGen.addSensiWords(word);
+    }
+    private int handleSensitiveWords(String word) {
+        return keywordGen.handleSensitiveWords(word);
+    }
+    public String initKeyword(String keyword)
+            throws QueryFormatException {
+        return keywordGen.initKeyword(keyword);
+    }
+    public static boolean initSensitiveModels(String path, String path2){
+        return keywordGen.initSensitiveModels(path, path2 );
+    }
     /**
      * 验证query是否合法，对不合法部分进行默认初始化
      *
@@ -589,11 +605,10 @@ public class SearchBuilder {
 		}*/
 
         QueryBuilder initQb = QueryBuilders.queryStringQuery( key )
-                .field( Mapper.FieldArticle.TITLE_SRC, Configuration.TITLE_SRC_WEIGHT ) // 100)
-                .field( Mapper.FieldArticle.TITLE_EN, Configuration.TITLE_WEIGHT ) //10)
-                .field( Mapper.FieldArticle.TITLE_ZH, Configuration.TITLE_WEIGHT ) //10)
-                .field( Mapper.FieldArticle.ABSTRACT_EN, Configuration.TEXT_WEIGHT ) //2)
-                .field( Mapper.FieldArticle.ABSTRACT_ZH, Configuration.TEXT_WEIGHT ) // 2)
+                .field( Mapper.FieldArticle.TITLE_EN, Configuration.TITLE_EN_WEIGHT )
+                .field( Mapper.FieldArticle.TITLE_ZH, Configuration.TITLE_ZH_WEIGHT )
+                .field( Mapper.FieldArticle.ABSTRACT_EN, Configuration.ABSTRACT_EN_WEIGHT )
+                .field( Mapper.FieldArticle.ABSTRACT_ZH, Configuration.ABSTRACT_ZH_WEIGHT )
                 ;
 
         QueryBuilder fsqb = initQb;

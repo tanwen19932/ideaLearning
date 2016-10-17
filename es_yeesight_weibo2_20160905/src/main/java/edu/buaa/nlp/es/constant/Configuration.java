@@ -31,7 +31,10 @@ public class Configuration {
 	
 	public static int SEARCH_TYPE = 0; //搜索方案类型：0-decay;1-script-function
 	public static int TITLE_SRC_WEIGHT = 100;
-	public static int TITLE_WEIGHT = 10;
+	public static int TITLE_EN_WEIGHT = 3;
+	public static int TITLE_ZH_WEIGHT = 5;
+	public static int ABSTRACT_EN_WEIGHT = 1;
+	public static int ABSTRACT_ZH_WEIGHT = 2;
 	public static int TEXT_WEIGHT = 2;
 	public static int MEDIA_WEIGHT = 10;
 	public static long BASE_TIME=1413000000000L;
@@ -77,7 +80,6 @@ public class Configuration {
 		
 		SEARCH_TYPE = Integer.parseInt(prop.getProperty("SEARCH_TYPE", "0"));
 		TITLE_SRC_WEIGHT = Integer.parseInt(prop.getProperty("TITLE_SRC_WEIGHT", "100"));
-		TITLE_WEIGHT = Integer.parseInt(prop.getProperty("TITLE_WEIGHT", "10"));
 		TEXT_WEIGHT = Integer.parseInt(prop.getProperty("TEXT_WEIGHT", "2"));
 		
 		MEDIA_WEIGHT = Integer.parseInt(prop.getProperty("MEDIA_WEIGHT", "10"));

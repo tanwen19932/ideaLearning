@@ -10,7 +10,7 @@ import edu.buaa.nlp.es.weibo.SearchBuilder;
 public class SearchTestWeibo {
 	
 	public static void testAdvanced(String keyword){
-		SearchBuilder.initSensitiveModels("data/sensitive/leaders.txt", "data/sensitive/sensiwords.txt");
+		SearchBuilder.keywordGen.initSensitiveModels("data/sensitive/leaders.txt", "data/sensitive/sensiwords.txt");
 		SearchBuilder sb=new SearchBuilder();
 		JSONObject jsonQuery=new JSONObject();
 		jsonQuery.put(Mapper.Query.KEYWORD, "中国");

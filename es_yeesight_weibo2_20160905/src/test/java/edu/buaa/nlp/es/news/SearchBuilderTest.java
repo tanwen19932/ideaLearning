@@ -27,8 +27,8 @@ public class SearchBuilderTest
      edu.buaa.nlp.es.weibo.SearchBuilder searchBuilder = new  edu.buaa.nlp.es.weibo.SearchBuilder();
      SearchBuilder searchBuilder2 = new  SearchBuilder();
         //System.out.println(searchBuilder.initKeyword(json));
-        //System.out.println( " 社交检索 ： ");
-        //System.out.println( searchBuilder.crossSearch(json));
+        System.out.println( " 社交检索 ： ");
+        System.out.println( searchBuilder.crossSearch(json));
         System.out.println( " 新闻检索 ： ");
         System.out.println( searchBuilder2.crossSearch(json));
     }

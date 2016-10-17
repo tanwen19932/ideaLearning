@@ -44,7 +44,7 @@ public class SearchBuilder {
     private Client client;
     private Logger logger = Logger.getLogger( getClass() );
     private boolean handledSensitiveWords = false;
-    KeywordGen keywordGen = new KeywordGen();
+    public static KeywordGen keywordGen = new KeywordGen();
 
     public static SearchBuilder getTotal() {
         return new SearchBuilder( Configuration.CLUSTER_NAME, Configuration.TOTAL_INDEX_SERVER_ADDRESS );
@@ -69,7 +69,22 @@ public class SearchBuilder {
             logger.error( ExceptionUtil.getExceptionTrace( e ) );
         }
     }
-
+    public static boolean addLeader(String word) {
+        return keywordGen.addLeader(word);
+    }
+    public static boolean addSensiWords(String word) {
+        return keywordGen.addSensiWords(word);
+    }
+    private int handleSensitiveWords(String word) {
+        return keywordGen.handleSensitiveWords(word);
+    }
+    public String initKeyword(String keyword)
+            throws QueryFormatException {
+        return keywordGen.initKeyword(keyword);
+    }
+    public static boolean initSensitiveModels(String path, String path2){
+        return keywordGen.initSensitiveModels(path, path2 );
+    }
 
     /**
      * 验证query是否合法，对不合法部分进行默认初始化
@@ -838,7 +853,6 @@ public class SearchBuilder {
         //		result.put(Mapper.Query.RESULT_GROUP, parseAggregationBucket((Terms) sr.getAggregations().get(Mapper.FieldArticle.SECONDE_LEVEL)));
         return result.toString();
     }
-
 
     //排序
     private SortBuilder getSort(JSONObject obj) {

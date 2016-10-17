@@ -4,6 +4,7 @@ import edu.buaa.nlp.es.exception.QueryFormatException;
 import edu.buaa.nlp.es.util.CharUtil;
 import edu.buaa.nlp.es.util.Constant;
 import edu.buaa.nlp.es.util.PingyinTool;
+import org.apache.log4j.Logger;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -20,6 +21,7 @@ import java.util.regex.Pattern;
  * @date TW on 2016/10/14.
  */
 public class KeywordGen {
+    private static final Logger LOG = Logger.getLogger(KeywordGen.class);
     private static Pattern patYinHao = Pattern.compile( "(\"[^\"]+\")" );
     private static String yinhaoTag = "YH_"; //引号标签
     //for field搜索
@@ -304,52 +306,47 @@ public class KeywordGen {
 
     public int handleSensitiveWords(String word) {
         try {
+            int result = 0;
             String clearword = CharUtil.ToDBC( word );
             clearword = CharUtil.removeUnChar( clearword ).toLowerCase();
-
-
             if (clearword.length() > 1) {
 
                 String wordPingyin = pingyinTool.toPinYin( clearword, "", PingyinTool.Type.LOWERCASE );
-
-                if (hashLeadersPingyin != null) {
-                    for (String key : hashLeadersPingyin.keySet()) {
-                        String change = wordPingyin.replaceAll( "[^\\s]"+  key +"[\\s$]" ,"" );
-                        if (!wordPingyin.equals( change )) {
-                            return 1;
-                        }
-                    }
-                }
-
-                if (hashSensiWordsPingyin != null) {
-                    for (String key : hashSensiWordsPingyin.keySet()) {
-                        if (wordPingyin.contains( key )) {
-                            return 1;
-                        }
-                    }
-                }
+                result=  checkPingyin(hashLeadersPingyin,wordPingyin  )
+                        ||checkPingyin(hashSensiWordsPingyin,wordPingyin  )
+                        ||checkWord(hashLeaders,word  )
+                        ||checkWord(hashSensiWords,word  )
+                        ?1:0;
             }
-
-            if (hashLeaders != null) {
-                for (String key : hashLeaders.keySet()) {
-                    if (word.contains( key )) {
-                        return 1;
-                    }
-                }
-            }
-
-            if (hashSensiWords != null) {
-                for (String key : hashSensiWords.keySet()) {
-                    if (word.contains( key )) {
-                        return 1;
-                    }
-                }
-            }
-            return 0;
+            return result;
         } catch (Exception e) {
             e.printStackTrace();
             return 1;
         }
     }
 
+    boolean checkPingyin(Map<String,Integer> hashPingyin , String wordPingyin){
+        if (hashPingyin != null) {
+            for (String key : hashPingyin.keySet()) {
+                String change = wordPingyin.replaceAll( "[^\\s]"+  key +"[\\s$]" ,"" );
+                if (!wordPingyin.equals( change )) {
+                    LOG.info("该词为敏感词 ：" + wordPingyin  + "   敏感源："+ key );
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    boolean checkWord(Map<String,Integer> hashWord , String word){
+        if (hashWord != null) {
+            for (String key : hashWord.keySet()) {
+                if (word.contains( key )) {
+                    LOG.info("该词为敏感词 ：" + word  + "   敏感源："+ key );
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 }
