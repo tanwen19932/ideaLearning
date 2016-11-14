@@ -52,7 +52,7 @@ public class ThreeSumFast {
                 if (k > j) StdOut.println(a[i] + " " + a[j] + " " + a[k]);
             }
         }
-    } 
+    }
 
     // return number of distinct triples (i, j, k) such that a[i] + a[j] + a[k] = 0
     public static int count(int[] a) {
