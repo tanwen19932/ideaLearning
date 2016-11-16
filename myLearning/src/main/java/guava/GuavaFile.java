@@ -1,16 +1,8 @@
 package guava;
 
-import com.google.common.base.Optional;
 import com.google.common.io.Files;
-import com.optimaize.langdetect.LanguageDetector;
-import com.optimaize.langdetect.LanguageDetectorBuilder;
-import com.optimaize.langdetect.i18n.LdLocale;
-import com.optimaize.langdetect.ngram.NgramExtractors;
 import com.optimaize.langdetect.profiles.LanguageProfile;
 import com.optimaize.langdetect.profiles.LanguageProfileReader;
-import com.optimaize.langdetect.text.CommonTextObjectFactories;
-import com.optimaize.langdetect.text.TextObject;
-import com.optimaize.langdetect.text.TextObjectFactory;
 import edu.buaa.nlp.tw.common.HtmlUtil;
 import edu.buaa.nlp.tw.common.HttpUtil;
 import org.json.JSONObject;
@@ -37,17 +29,17 @@ public class GuavaFile {
         }
 
 //build language detector:
-        LanguageDetector languageDetector = LanguageDetectorBuilder.create(NgramExtractors.standard())
-                .withProfiles(languageProfiles)
-                .build();
+//        LanguageDetector languageDetector = LanguageDetectorBuilder.create(NgramExtractors.standard())
+//                .withProfiles(languageProfiles)
+//                .build();
 
 //create a text object factory
-        TextObjectFactory textObjectFactory = CommonTextObjectFactories.forIndexingCleanText();
+//        TextObjectFactory textObjectFactory = CommonTextObjectFactories.forIndexingCleanText();
 
 //query:
-        TextObject textObject = textObjectFactory.forText("my text");
-        Optional<LdLocale> lang = languageDetector.detect(textObject);
-        System.out.println(lang.get().toString());
+//        TextObject textObject = textObjectFactory.forText("my text");
+//        Optional<LdLocale> lang = languageDetector.detect(textObject);
+//        System.out.println(lang.get().toString());
         File dir = new File("D:\\ja");
         File[] files = dir.listFiles();
         try {
@@ -61,7 +53,6 @@ public class GuavaFile {
                     System.out.println(out);
                 }
             }
-
         } catch (IOException e) {
             e.printStackTrace();
         }
