@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="ResourceTest1">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/JavaCore/bin/corejava/v1ch10/resource/ResourceTest.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

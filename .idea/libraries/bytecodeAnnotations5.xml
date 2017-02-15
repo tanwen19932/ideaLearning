@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="bytecodeAnnotations5">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/JavaCore/bin/corejava/v2ch10/bin/bytecodeAnnotations/bcel-6.0-SNAPSHOT.jar!/" />
+      <root url="jar://$PROJECT_DIR$/JavaCore/bin/corejava/v2ch10/bin/bytecodeAnnotations/EntryLoggingAgent.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

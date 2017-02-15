@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="ImageViewerBean5">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/JavaCore/src/corejava/v2ch08/imageViewer/ImageViewerBean.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

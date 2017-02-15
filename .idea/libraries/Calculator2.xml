@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="Calculator2">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/JavaCore/src/corejava/v1ch10/webstart/Calculator.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
