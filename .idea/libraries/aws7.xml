@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="aws7">
-    <CLASSES>
-      <root url="jar://$PROJECT_DIR$/JavaCore/src/corejava/v2ch11/bin/webService2/aws.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>
