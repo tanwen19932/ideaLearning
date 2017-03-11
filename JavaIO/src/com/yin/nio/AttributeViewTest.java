@@ -11,7 +11,7 @@ import java.util.Date;
 public class AttributeViewTest {
 
 	public static void main(String[] args) {
-		Path testPath = Paths.get(".\\src\\com\\yin\\nio\\AttributeViewTest.java");
+		Path testPath = Paths.get(".\\src\\com\\yin\\google.guava.nio\\AttributeViewTest.java");
 		BasicFileAttributeView basicView = Files.getFileAttributeView(testPath,
 				BasicFileAttributeView.class);
 		try {

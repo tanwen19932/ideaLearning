@@ -12,7 +12,7 @@ public class CatTest {
         if (mimi == null) {  
             mimi = new CatTest();  
         }  
-    }  
+    }
   
     public static CatTest getInstance() {  
         if (mimi == null) {  

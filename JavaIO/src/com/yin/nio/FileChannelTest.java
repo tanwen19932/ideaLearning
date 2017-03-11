@@ -12,7 +12,7 @@ import java.nio.charset.CharsetDecoder;
 
 public class FileChannelTest {
 	public static void main(String[] args) {
-		String pathin = ".\\src\\com\\yin\\nio\\FileChannelTest.java";
+		String pathin = ".\\src\\com\\yin\\google.guava.nio\\FileChannelTest.java";
 		String pathout = "a.txt";
 		File filein = new File(pathin);
 		File fileout = new File(pathout);
