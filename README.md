@@ -1,7 +1,6 @@
 # JAVA Learning
-这里为java 学习的书籍的基础源码
-There're some java books source code:
-包含了(including:)
+这里为java 学习的书籍的基础源码 包含了:   
+There're some java books source code including:  
 1. 算法 -> AlgorithmsSedgewick-master
 2. java的23中设计模式 -> DesignMode
 3. HeadFirst设计模式 -> HeadFirstDesignMode
